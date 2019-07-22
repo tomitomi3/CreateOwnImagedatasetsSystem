@@ -1,4 +1,6 @@
-﻿Imports OpenCvSharp
+﻿Imports System.IO.Ports
+Imports System.Windows.Forms
+Imports OpenCvSharp
 
 Public Class MainWindow
 #Region "Member"
@@ -61,6 +63,10 @@ Public Class MainWindow
         ImageSize256x256 = 256
     End Enum
 
+    ''' <summary>To Send Arduino data</summary>
+    Private _sendData As New List(Of Byte)
+    Private oSerialPort As SerialPort = Nothing
+
 #End Region
 
 #Region "Private my func"
@@ -90,11 +96,15 @@ Public Class MainWindow
     ''' </summary>
     Private Sub Worker()
         Dim sw As New Stopwatch()
+        Dim rnd As New System.Random()
         While (True)
             sw.Restart()
             Try
                 'create VideoCapture instance
                 Me.InitCam()
+
+                'wait ゆらぎ
+                'System.Threading.Thread.Sleep(rnd.Next(20, 100))
 
                 'capture
                 Using mat = New Mat()
@@ -121,10 +131,9 @@ Public Class MainWindow
                 If saumMemory > thd Then
                     GC.Collect()
                 End If
-
-                sw.Stop()
-                'Console.WriteLine("{0}[fps]", 1000.0 / sw.ElapsedMilliseconds)
             End Try
+            sw.Stop()
+            'Console.WriteLine("{0}[fps]", 1000.0 / sw.ElapsedMilliseconds)
         End While
 
         'done
@@ -238,6 +247,53 @@ Public Class MainWindow
         sumImg.ConvertTo(retImg, MatType.CV_8UC3, 1.0 / averageNum)
         Return retImg
     End Function
+
+    ''' <summary>
+    ''' close comport
+    ''' </summary>
+    Private Sub CloseProcess()
+        If oSerialPort.IsOpen Then
+            oSerialPort.Close()
+        End If
+    End Sub
+
+    ''' <summary>
+    ''' Send data to Arduino
+    ''' </summary>
+    Private Sub SendArduinoWithCheckSum()
+        If oSerialPort.IsOpen = False Then
+            Return
+        End If
+
+        'calc checksum
+        Dim sumSize As UInt16 = 0
+        For i As Integer = 0 To _sendData.Count - 1
+            sumSize += _sendData(i)
+        Next
+        sumSize = (Not sumSize) + 1
+        Dim chkSumByte = BitConverter.GetBytes(sumSize)
+
+        'add checksum
+        Dim allSendByte As New List(Of Byte)
+        allSendByte.Add(chkSumByte(0))
+        allSendByte.Add(chkSumByte(1))
+        For Each temp In _sendData
+            allSendByte.Add(temp) 'data
+        Next
+
+        'debug
+        Console.WriteLine("SendSize:{0} CheckSum :{1}", allSendByte.Count, sumSize)
+        For i As Integer = 0 To allSendByte.Count - 1
+            Console.Write("{0} ", allSendByte(i))
+        Next
+        Console.WriteLine("")
+
+        'write
+        oSerialPort.Write(allSendByte.ToArray, 0, allSendByte.Count)
+        Dim waitMs = CInt((allSendByte.Count * 1000) / (Me.oSerialPort.BaudRate / 8) * 1.5) + 20
+        System.Threading.Thread.Sleep(waitMs)
+    End Sub
+
 #End Region
 
 #Region "Public event"
@@ -307,13 +363,36 @@ Public Class MainWindow
         _saveImgUtil.Init(SaveImageUtili.GetExePath(), "MyImageDataset")
         Me.tbxFolderPath.Text = _saveImgUtil.GetSaveFolder()
 
+        'UART
+        oSerialPort = New SerialPort()
+        oSerialPort.BaudRate = 9600 '9600
+        oSerialPort.StopBits = StopBits.One
+        oSerialPort.RtsEnable = False
+        oSerialPort.DataBits = 8
+        oSerialPort.Parity = False
+
+        Dim ports = System.IO.Ports.SerialPort.GetPortNames()
+        For Each portName In ports
+            Console.WriteLine("{0}", portName)
+        Next
+        If ports.Length <> 0 Then
+            For Each p In ports
+                Me.cbxPort.Items.Add(String.Format("{0}", ports(0)))
+            Next
+            Me.cbxPort.SelectedIndex = 0
+        End If
+
+        'UI
+        Me.btnOpenClose.Enabled = False
+        Me.cbxPort.Enabled = False
+
         'debug
-        cmbCamID.SelectedIndex = 1
-        btnCamOpen.PerformClick()
+        'cmbCamID.SelectedIndex = 1
+        'btnCamOpen.PerformClick()
     End Sub
 
     ''' <summary>
-    ''' Close
+    ''' Form close
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
@@ -324,10 +403,12 @@ Public Class MainWindow
         If _thread.IsAlive = True Then
             _thread.Abort()
         End If
+
+        CloseProcess()
     End Sub
 
     ''' <summary>
-    ''' キャプチャ画像クリック
+    ''' click capture image
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
@@ -390,6 +471,11 @@ Public Class MainWindow
         End If
     End Sub
 
+    ''' <summary>
+    ''' change clip image
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
     Private Sub cmbClipSize_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbClipSize.SelectedIndexChanged
         For Each tempVal In [Enum].GetValues(GetType(EnumClipImageSize))
             Dim eName As String = [Enum].GetName(GetType(EnumClipImageSize), tempVal)
@@ -400,10 +486,35 @@ Public Class MainWindow
         Me.CLIP_SIZE_EX = CInt(CLIP_SIZE * 1.4143 + 0.5)
         Dim diff As Integer = CLIP_SIZE_EX - CLIP_SIZE
         Me.lblExDiff.Text = String.Format("Diff: {0} [pixel]", diff)
+
+        'slide
+        Me.tbxSlide.Text = CInt(diff / 2)
     End Sub
 
     ''' <summary>
-    ''' 保存先を開く
+    ''' Open/Close Com port
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub btnCom_Click(sender As Object, e As EventArgs) Handles btnOpenClose.Click
+        If oSerialPort.IsOpen Then
+            CloseProcess()
+            Me.btnOpenClose.Text = "Open"
+            Me.btnOpenClose.BackColor = Color.AliceBlue
+        Else
+            Me.btnOpenClose.Text = "Close"
+            Me.btnOpenClose.BackColor = Color.Aqua
+            Try
+                Me.oSerialPort.PortName = Me.cbxPort.SelectedItem.ToString
+                Me.oSerialPort.Open()
+            Catch ex As Exception
+                MessageBox.Show(ex.Message)
+            End Try
+        End If
+    End Sub
+
+    ''' <summary>
+    ''' open save folder
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
@@ -412,7 +523,7 @@ Public Class MainWindow
     End Sub
 
     ''' <summary>
-    ''' 保存
+    ''' save(one shot)
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
@@ -424,7 +535,7 @@ Public Class MainWindow
     End Sub
 
     ''' <summary>
-    ''' 保存 with Settings
+    ''' save with various settings
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
@@ -439,20 +550,126 @@ Public Class MainWindow
         End If
 
         SyncLock objlock
-
-
-
+            'flip x軸
+            'rotation 18
 
             _saveImgUtil.Save(tbxCorrectName.Text, Me.pbxProcessed.Image)
         End SyncLock
     End Sub
 
-    ''' <summary>
-    ''' Lightのパターン生成
-    ''' </summary>
-    Private Sub GenLigthtPattern()
+    Private Const NUM_OF_LED As Integer = 2
+    Private Const LightBrightness As Byte = 64
+    Private Const LightStep As Byte = 32
+    Private Const SIZE_CH_COLOR As Integer = 4
+    Private Const IDX_BRIGHTNESS As Integer = 0
+    Private Const IDX_CH0 As Integer = 1
+    Private Const IDX_CH1 As Integer = IDX_CH0 + SIZE_CH_COLOR
+    Private Const IDX_CH2 As Integer = IDX_CH1 + SIZE_CH_COLOR
+    Private Const IDX_CH3 As Integer = IDX_CH2 + SIZE_CH_COLOR
+    Private Const IDX_CH4 As Integer = IDX_CH3 + SIZE_CH_COLOR
 
+    ''' <summary>
+    ''' NeoPixelパターン生成
+    ''' </summary>
+    Private Function GenLigthtPattern() As List(Of Byte())
+        Dim colorPattern = New List(Of Byte())
+        Dim roundNum As Integer = ((Byte.MaxValue / LightStep) + 0.5)
+        For r As Integer = 0 To roundNum - 1
+            For g As Integer = 0 To roundNum - 1
+                For b As Integer = 0 To roundNum - 1
+                    Dim singleRGB As New List(Of Byte)
+                    singleRGB.Add(r * LightStep)
+                    singleRGB.Add(g * LightStep)
+                    singleRGB.Add(b * LightStep)
+                    colorPattern.Add(singleRGB.ToArray())
+                Next
+            Next
+        Next
+        Return colorPattern
+    End Function
+
+    Private Sub InitSendData()
+        '初期化
+        If _sendData.Count <> (1 + SIZE_CH_COLOR * NUM_OF_LED) Then
+            _sendData.Clear()
+            For i As Integer = 0 To (1 + SIZE_CH_COLOR * NUM_OF_LED) - 1
+                _sendData.Add(0)
+            Next
+        End If
     End Sub
+
+    Private Sub btnLightDemo_Click(sender As Object, e As EventArgs) Handles btnLightDemo.Click
+        Dim ret = GenLigthtPattern()
+
+        'Color
+        '             0   R  G  B  0   R  G  B
+        '[Brightness][CH][R][G][B][CH][R][G][B]
+        InitSendData()
+        _sendData(IDX_BRIGHTNESS) = LightBrightness
+        For Each c In ret
+            For i As Integer = 0 To NUM_OF_LED - 1
+                Dim idx = IDX_CH0 + SIZE_CH_COLOR * i
+                _sendData(idx) = i
+                _sendData(idx + 1) = c(0)
+                _sendData(idx + 2) = c(1)
+                _sendData(idx + 3) = c(2)
+            Next
+            SendArduinoWithCheckSum()
+            Application.DoEvents()
+        Next
+    End Sub
+
+    Private Sub cbxLightCtrl_CheckedChanged(sender As Object, e As EventArgs) Handles cbxLightCtrl.CheckedChanged
+        If cbxLightCtrl.Checked Then
+            Me.btnOpenClose.Enabled = True
+            Me.cbxPort.Enabled = True
+        Else
+            Me.btnOpenClose.Enabled = False
+            Me.cbxPort.Enabled = False
+
+            If oSerialPort.IsOpen Then
+                CloseProcess()
+                Me.btnOpenClose.Text = "Open"
+                Me.btnOpenClose.BackColor = Color.AliceBlue
+            End If
+        End If
+    End Sub
+
+    Private Sub btnSetRGB_Click(sender As Object, e As EventArgs) Handles btnSetRGB.Click
+        'byte
+        Dim split = Me.tbxRGBDemo.Text.Split(",")
+        If split.Count <> 3 Then
+            Return
+        End If
+
+        InitSendData()
+        _sendData(IDX_BRIGHTNESS) = LightBrightness
+        For i As Integer = 0 To NUM_OF_LED - 1
+            Dim idx = IDX_CH0 + SIZE_CH_COLOR * i
+            _sendData(idx) = i
+            _sendData(idx + 1) = split(0)
+            _sendData(idx + 2) = split(1)
+            _sendData(idx + 3) = split(2)
+        Next
+        SendArduinoWithCheckSum()
+    End Sub
+
+    Private Sub btnDemoR_Click(sender As Object, e As EventArgs) Handles btnDemoR.Click
+        Me.tbxRGBDemo.Text = "255,0,0"
+    End Sub
+
+    Private Sub btnDemoG_Click(sender As Object, e As EventArgs) Handles btnDemoG.Click
+        Me.tbxRGBDemo.Text = "0,255,0"
+    End Sub
+
+    Private Sub btnDemoB_Click(sender As Object, e As EventArgs) Handles btnDemoB.Click
+        Me.tbxRGBDemo.Text = "0,0,255"
+    End Sub
+
+    Private Sub btnDemoW_Click(sender As Object, e As EventArgs) Handles btnDemoW.Click
+        Me.tbxRGBDemo.Text = "255,255,255"
+    End Sub
+
 #End Region
 End Class
 
