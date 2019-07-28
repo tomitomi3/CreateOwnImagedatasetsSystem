@@ -63,6 +63,21 @@ Public Class MainWindow
         ImageSize256x256 = 256
     End Enum
 
+    ''' <summary>
+    ''' カメラサイズ
+    ''' </summary>
+    Public Enum EnumCameraImgSize
+        Size640x480 = 0
+        Size800x600
+        Size1280x720
+        Size1280x960
+        Size1280x1024
+        Size1600x1200
+        Size1920x1080
+        Size1920x1200
+        Size2048x1536
+    End Enum
+
     ''' <summary>To Send Arduino data</summary>
     Private _sendData As New List(Of Byte)
     Private oSerialPort As SerialPort = Nothing
@@ -86,8 +101,58 @@ Public Class MainWindow
             '-----------------------------------------------
             'ここはUSBカメラによって適宜設定する
             '-----------------------------------------------
-            _cap.Set(CaptureProperty.FrameWidth, 1280) '1280
-            _cap.Set(CaptureProperty.FrameHeight, 960) '960
+            Dim selectCamImgIndex = -1
+            Me.Invoke(
+                        Sub()
+                            selectCamImgIndex = Me.cmbCamImgSize.SelectedIndex
+                        End Sub
+                      )
+            If EnumCameraImgSize.Size640x480 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                _cap.Set(CaptureProperty.FrameWidth, 640)
+                _cap.Set(CaptureProperty.FrameHeight, 480)
+            ElseIf EnumCameraImgSize.Size800x600 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                _cap.Set(CaptureProperty.FrameWidth, 800)
+                _cap.Set(CaptureProperty.FrameHeight, 600)
+            ElseIf EnumCameraImgSize.Size1280x720 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                _cap.Set(CaptureProperty.FrameWidth, 1280)
+                _cap.Set(CaptureProperty.FrameHeight, 720)
+            ElseIf EnumCameraImgSize.Size1280x960 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                _cap.Set(CaptureProperty.FrameWidth, 1280)
+                _cap.Set(CaptureProperty.FrameHeight, 960)
+            ElseIf EnumCameraImgSize.Size1280x1024 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                _cap.Set(CaptureProperty.FrameWidth, 1280)
+                _cap.Set(CaptureProperty.FrameHeight, 1024)
+            ElseIf EnumCameraImgSize.Size1600x1200 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                _cap.Set(CaptureProperty.FrameWidth, 1600)
+                _cap.Set(CaptureProperty.FrameHeight, 1200)
+            ElseIf EnumCameraImgSize.Size1920x1080 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                _cap.Set(CaptureProperty.FrameWidth, 1920)
+                _cap.Set(CaptureProperty.FrameHeight, 1080)
+            ElseIf EnumCameraImgSize.Size1920x1200 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                _cap.Set(CaptureProperty.FrameWidth, 1920)
+                _cap.Set(CaptureProperty.FrameHeight, 1200)
+            ElseIf EnumCameraImgSize.Size2048x1536 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                _cap.Set(CaptureProperty.FrameWidth, 2048)
+                _cap.Set(CaptureProperty.FrameHeight, 1536)
+            End If
+
+            'CapuretPropery
+            Console.WriteLine("Camera ID    :{0}", camId)
+            Console.WriteLine(" Width       :{0}", _cap.Get(CaptureProperty.FrameWidth))
+            Console.WriteLine(" Height      :{0}", _cap.Get(CaptureProperty.FrameHeight))
+            Console.WriteLine(" Exposure    :{0}", _cap.Get(CaptureProperty.Exposure))
+            Console.WriteLine(" AutoExposure:{0}", _cap.Get(CaptureProperty.AutoExposure))
+            Console.WriteLine(" Exposure    :{0}", _cap.Get(CaptureProperty.Exposure))
+            Console.WriteLine(" FPS         :{0}", _cap.Get(CaptureProperty.Fps))
+            Console.WriteLine(" FrameCount  :{0}", _cap.Get(CaptureProperty.FrameCount))
+            Console.WriteLine(" Gamma       :{0}", _cap.Get(CaptureProperty.Gamma))
+            Console.WriteLine(" Gain        :{0}", _cap.Get(CaptureProperty.Gain))
+            Console.WriteLine(" Temperature :{0}", _cap.Get(CaptureProperty.Temperature))
+            Console.WriteLine(" XI_AutoWB   :{0}", _cap.Get(CaptureProperty.XI_AutoWB))
+
+            '_cap.Set(CaptureProperty.AutoExposure, 1)
+            '_cap.Set(CaptureProperty.AutoExposure, 1)
+            '_cap.Set(CaptureProperty.Exposure, 2.0)
         End If
     End Sub
 
@@ -350,6 +415,15 @@ Public Class MainWindow
         Next
         cmbClipSize.SelectedIndex = 2
 
+        'cmb box clip size
+        cmbCamImgSize.DropDownStyle = ComboBoxStyle.DropDownList
+        cmbCamImgSize.Items.Clear()
+        For Each tempVal In [Enum].GetValues(GetType(EnumCameraImgSize))
+            Dim eName As String = [Enum].GetName(GetType(EnumCameraImgSize), tempVal)
+            cmbCamImgSize.Items.Add(eName)
+        Next
+        cmbCamImgSize.SelectedIndex = 2
+
         'cmb box image size
         cmbImgSize.DropDownStyle = ComboBoxStyle.DropDownList
         cmbImgSize.Items.Clear()
@@ -377,7 +451,7 @@ Public Class MainWindow
         Next
         If ports.Length <> 0 Then
             For Each p In ports
-                Me.cbxPort.Items.Add(String.Format("{0}", ports(0)))
+                Me.cbxPort.Items.Add(String.Format("{0}", p))
             Next
             Me.cbxPort.SelectedIndex = 0
         End If
