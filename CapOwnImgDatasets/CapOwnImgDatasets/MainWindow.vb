@@ -631,7 +631,7 @@ Public Class MainWindow
         End SyncLock
     End Sub
 
-    Private Const NUM_OF_LED As Integer = 2
+    Private Const NUM_OF_LED As Integer = 5
     Private Const LightBrightness As Byte = 64
     Private Const LightStep As Byte = 32
     Private Const SIZE_CH_COLOR As Integer = 4
@@ -664,8 +664,8 @@ Public Class MainWindow
 
     Private Sub InitSendData()
         '初期化
+        _sendData.Clear()
         If _sendData.Count <> (1 + SIZE_CH_COLOR * NUM_OF_LED) Then
-            _sendData.Clear()
             For i As Integer = 0 To (1 + SIZE_CH_COLOR * NUM_OF_LED) - 1
                 _sendData.Add(0)
             Next
@@ -742,6 +742,22 @@ Public Class MainWindow
 
     Private Sub btnDemoW_Click(sender As Object, e As EventArgs) Handles btnDemoW.Click
         Me.tbxRGBDemo.Text = "255,255,255"
+    End Sub
+
+    Private Sub btnSingleLED_Click(sender As Object, e As EventArgs) Handles btnSingleLED.Click
+        'byte
+        Dim split = Me.tbxChRGB.Text.Split(",")
+        If split.Count <> 4 Then
+            Return
+        End If
+
+        _sendData.Clear()
+        _sendData.Add(LightBrightness)
+        _sendData.Add(Byte.Parse(split(0)))
+        _sendData.Add(Byte.Parse(split(1)))
+        _sendData.Add(Byte.Parse(split(2)))
+        _sendData.Add(Byte.Parse(split(3)))
+        SendArduinoWithCheckSum()
     End Sub
 
 #End Region

@@ -7,7 +7,7 @@
 
 //config and vars
 #define PIN       9
-#define NUMPIXELS 2
+#define NUMPIXELS 5
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 //UART 232C control
@@ -25,8 +25,8 @@ bool    oneShot = false;
 
 //Protocol
 // [CHECKSUM1][CHECKSUM2][BRIGHTNESS][CH1][CH1R][CH1G][CH1B][CH2][CH2R][CH2G][CH2B]...
-// [0]        [1]        [2]         [3]  [4]   [5]   [6]   [CHINDEX*2]...
-#define CHINDEX 3
+// [0]        [1]        [2]         [3]  [4]   [5]   [6]   [CH_START*2]...
+#define CH_START 3
 
 //--------------------------------------------------------------------
 //Setup()
@@ -57,8 +57,30 @@ void ResetPixel()
 
 }
 
+void HelloNeopixel()
+{
+  for ( int i = 0; i < NUMPIXELS; i++)
+  {
+    pixels.setPixelColor(i, 128, 0, 0);
+    pixels.show();
+    delay(100);
+    pixels.setPixelColor(i, 0, 128, 0);
+    pixels.show();
+    delay(100);
+    pixels.setPixelColor(i, 0, 0, 128);
+    pixels.show();
+    delay(100);
+    pixels.setPixelColor(i, 128, 128, 128);
+    pixels.show();
+    delay(100);
+  }
+  delay(500);
+  ResetPixel();
+}
+
 void loop() {
   ResetPixel();
+  HelloNeopixel();
 
   //serial
   while (1)
@@ -108,16 +130,17 @@ void loop() {
       {
         //to NeoPixel
         pixels.setBrightness(rcvData[2]);
-
+        
         //ctrl
-        int index = CHINDEX;
-        for ( int i = 0; i < NUMPIXELS; i++)
+        int LEDNUM = (readCount - 3) / 4; //7byte = 2byte:checksum 1byte:brightness CH0LED
+        int index = CH_START;
+        for ( int i = 0; i < LEDNUM; i++)
         {
           pixels.setPixelColor(rcvData[index], pixels.Color(rcvData[index + 1], rcvData[index + 2], rcvData[index + 3]));
           index += 4;
         }
         pixels.show();
-        
+
         //プログラム側でchecksum結果を確認する場合
         //Serial.write(1);
       }

@@ -61,10 +61,12 @@ Partial Class MainWindow
         Me.btnDemoB = New System.Windows.Forms.Button()
         Me.btnDemoW = New System.Windows.Forms.Button()
         Me.gbxCollect = New System.Windows.Forms.GroupBox()
-        Me.tbxRGBDemo = New System.Windows.Forms.TextBox()
-        Me.btnSetRGB = New System.Windows.Forms.Button()
         Me.cmbCamImgSize = New System.Windows.Forms.ComboBox()
         Me.Label3 = New System.Windows.Forms.Label()
+        Me.tbxRGBDemo = New System.Windows.Forms.TextBox()
+        Me.btnSetRGB = New System.Windows.Forms.Button()
+        Me.btnSingleLED = New System.Windows.Forms.Button()
+        Me.tbxChRGB = New System.Windows.Forms.TextBox()
         CType(Me.pbxMainRaw, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.pbxProcessed, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox2.SuspendLayout()
@@ -454,23 +456,6 @@ Partial Class MainWindow
         Me.gbxCollect.TabStop = False
         Me.gbxCollect.Text = "Settings for Collect"
         '
-        'tbxRGBDemo
-        '
-        Me.tbxRGBDemo.Location = New System.Drawing.Point(560, 478)
-        Me.tbxRGBDemo.Name = "tbxRGBDemo"
-        Me.tbxRGBDemo.Size = New System.Drawing.Size(100, 19)
-        Me.tbxRGBDemo.TabIndex = 28
-        Me.tbxRGBDemo.Text = "0,0,0"
-        '
-        'btnSetRGB
-        '
-        Me.btnSetRGB.Location = New System.Drawing.Point(666, 476)
-        Me.btnSetRGB.Name = "btnSetRGB"
-        Me.btnSetRGB.Size = New System.Drawing.Size(75, 23)
-        Me.btnSetRGB.TabIndex = 29
-        Me.btnSetRGB.Text = "Set"
-        Me.btnSetRGB.UseVisualStyleBackColor = True
-        '
         'cmbCamImgSize
         '
         Me.cmbCamImgSize.FormattingEnabled = True
@@ -488,11 +473,47 @@ Partial Class MainWindow
         Me.Label3.TabIndex = 6
         Me.Label3.Text = "CameraSize:"
         '
+        'tbxRGBDemo
+        '
+        Me.tbxRGBDemo.Location = New System.Drawing.Point(560, 478)
+        Me.tbxRGBDemo.Name = "tbxRGBDemo"
+        Me.tbxRGBDemo.Size = New System.Drawing.Size(100, 19)
+        Me.tbxRGBDemo.TabIndex = 28
+        Me.tbxRGBDemo.Text = "0,0,0"
+        '
+        'btnSetRGB
+        '
+        Me.btnSetRGB.Location = New System.Drawing.Point(666, 476)
+        Me.btnSetRGB.Name = "btnSetRGB"
+        Me.btnSetRGB.Size = New System.Drawing.Size(75, 23)
+        Me.btnSetRGB.TabIndex = 29
+        Me.btnSetRGB.Text = "Set"
+        Me.btnSetRGB.UseVisualStyleBackColor = True
+        '
+        'btnSingleLED
+        '
+        Me.btnSingleLED.Location = New System.Drawing.Point(666, 513)
+        Me.btnSingleLED.Name = "btnSingleLED"
+        Me.btnSingleLED.Size = New System.Drawing.Size(75, 23)
+        Me.btnSingleLED.TabIndex = 30
+        Me.btnSingleLED.Text = "SingleLED"
+        Me.btnSingleLED.UseVisualStyleBackColor = True
+        '
+        'tbxChRGB
+        '
+        Me.tbxChRGB.Location = New System.Drawing.Point(560, 515)
+        Me.tbxChRGB.Name = "tbxChRGB"
+        Me.tbxChRGB.Size = New System.Drawing.Size(100, 19)
+        Me.tbxChRGB.TabIndex = 31
+        Me.tbxChRGB.Text = "4,255,255,255"
+        '
         'MainWindow
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1110, 757)
+        Me.Controls.Add(Me.tbxChRGB)
+        Me.Controls.Add(Me.btnSingleLED)
         Me.Controls.Add(Me.btnSetRGB)
         Me.Controls.Add(Me.tbxRGBDemo)
         Me.Controls.Add(Me.btnDemoW)
@@ -559,4 +580,6 @@ Partial Class MainWindow
     Friend WithEvents btnSetRGB As Button
     Friend WithEvents cmbCamImgSize As ComboBox
     Friend WithEvents Label3 As Label
+    Friend WithEvents btnSingleLED As Button
+    Friend WithEvents tbxChRGB As TextBox
 End Class
