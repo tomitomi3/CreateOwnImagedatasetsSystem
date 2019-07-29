@@ -67,11 +67,26 @@ Partial Class MainWindow
         Me.btnSetRGB = New System.Windows.Forms.Button()
         Me.btnSingleLED = New System.Windows.Forms.Button()
         Me.tbxChRGB = New System.Windows.Forms.TextBox()
+        Me.gbxLED = New System.Windows.Forms.GroupBox()
+        Me.btnRGBValueSave = New System.Windows.Forms.Button()
+        Me.btnDemoOFF = New System.Windows.Forms.Button()
+        Me.trbR = New System.Windows.Forms.TrackBar()
+        Me.trbG = New System.Windows.Forms.TrackBar()
+        Me.trbB = New System.Windows.Forms.TrackBar()
+        Me.lblB = New System.Windows.Forms.Label()
+        Me.lblG = New System.Windows.Forms.Label()
+        Me.lblR = New System.Windows.Forms.Label()
+        Me.cmbLEDCH = New System.Windows.Forms.ComboBox()
+        Me.lblRGBFromROI = New System.Windows.Forms.Label()
         CType(Me.pbxMainRaw, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.pbxProcessed, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox2.SuspendLayout()
         Me.GroupBox3.SuspendLayout()
         Me.gbxCollect.SuspendLayout()
+        Me.gbxLED.SuspendLayout()
+        CType(Me.trbR, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.trbG, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.trbB, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'cmbCamID
@@ -355,7 +370,7 @@ Partial Class MainWindow
         '
         'btnLightDemo
         '
-        Me.btnLightDemo.Location = New System.Drawing.Point(936, 476)
+        Me.btnLightDemo.Location = New System.Drawing.Point(414, 26)
         Me.btnLightDemo.Name = "btnLightDemo"
         Me.btnLightDemo.Size = New System.Drawing.Size(75, 23)
         Me.btnLightDemo.TabIndex = 23
@@ -381,7 +396,7 @@ Partial Class MainWindow
         '
         'btnDemoR
         '
-        Me.btnDemoR.Location = New System.Drawing.Point(761, 476)
+        Me.btnDemoR.Location = New System.Drawing.Point(250, 26)
         Me.btnDemoR.Name = "btnDemoR"
         Me.btnDemoR.Size = New System.Drawing.Size(35, 23)
         Me.btnDemoR.TabIndex = 26
@@ -390,7 +405,7 @@ Partial Class MainWindow
         '
         'btnDemoG
         '
-        Me.btnDemoG.Location = New System.Drawing.Point(802, 476)
+        Me.btnDemoG.Location = New System.Drawing.Point(291, 26)
         Me.btnDemoG.Name = "btnDemoG"
         Me.btnDemoG.Size = New System.Drawing.Size(35, 23)
         Me.btnDemoG.TabIndex = 26
@@ -399,7 +414,7 @@ Partial Class MainWindow
         '
         'btnDemoB
         '
-        Me.btnDemoB.Location = New System.Drawing.Point(843, 476)
+        Me.btnDemoB.Location = New System.Drawing.Point(332, 26)
         Me.btnDemoB.Name = "btnDemoB"
         Me.btnDemoB.Size = New System.Drawing.Size(35, 23)
         Me.btnDemoB.TabIndex = 26
@@ -408,7 +423,7 @@ Partial Class MainWindow
         '
         'btnDemoW
         '
-        Me.btnDemoW.Location = New System.Drawing.Point(884, 476)
+        Me.btnDemoW.Location = New System.Drawing.Point(373, 26)
         Me.btnDemoW.Name = "btnDemoW"
         Me.btnDemoW.Size = New System.Drawing.Size(35, 23)
         Me.btnDemoW.TabIndex = 26
@@ -475,7 +490,7 @@ Partial Class MainWindow
         '
         'tbxRGBDemo
         '
-        Me.tbxRGBDemo.Location = New System.Drawing.Point(560, 478)
+        Me.tbxRGBDemo.Location = New System.Drawing.Point(15, 28)
         Me.tbxRGBDemo.Name = "tbxRGBDemo"
         Me.tbxRGBDemo.Size = New System.Drawing.Size(100, 19)
         Me.tbxRGBDemo.TabIndex = 28
@@ -483,7 +498,7 @@ Partial Class MainWindow
         '
         'btnSetRGB
         '
-        Me.btnSetRGB.Location = New System.Drawing.Point(666, 476)
+        Me.btnSetRGB.Location = New System.Drawing.Point(121, 26)
         Me.btnSetRGB.Name = "btnSetRGB"
         Me.btnSetRGB.Size = New System.Drawing.Size(75, 23)
         Me.btnSetRGB.TabIndex = 29
@@ -492,7 +507,7 @@ Partial Class MainWindow
         '
         'btnSingleLED
         '
-        Me.btnSingleLED.Location = New System.Drawing.Point(666, 513)
+        Me.btnSingleLED.Location = New System.Drawing.Point(121, 63)
         Me.btnSingleLED.Name = "btnSingleLED"
         Me.btnSingleLED.Size = New System.Drawing.Size(75, 23)
         Me.btnSingleLED.TabIndex = 30
@@ -501,29 +516,141 @@ Partial Class MainWindow
         '
         'tbxChRGB
         '
-        Me.tbxChRGB.Location = New System.Drawing.Point(560, 515)
+        Me.tbxChRGB.Location = New System.Drawing.Point(15, 65)
         Me.tbxChRGB.Name = "tbxChRGB"
         Me.tbxChRGB.Size = New System.Drawing.Size(100, 19)
         Me.tbxChRGB.TabIndex = 31
         Me.tbxChRGB.Text = "4,255,255,255"
         '
+        'gbxLED
+        '
+        Me.gbxLED.Controls.Add(Me.lblRGBFromROI)
+        Me.gbxLED.Controls.Add(Me.btnRGBValueSave)
+        Me.gbxLED.Controls.Add(Me.btnDemoOFF)
+        Me.gbxLED.Controls.Add(Me.tbxRGBDemo)
+        Me.gbxLED.Controls.Add(Me.tbxChRGB)
+        Me.gbxLED.Controls.Add(Me.trbR)
+        Me.gbxLED.Controls.Add(Me.btnSingleLED)
+        Me.gbxLED.Controls.Add(Me.trbG)
+        Me.gbxLED.Controls.Add(Me.btnSetRGB)
+        Me.gbxLED.Controls.Add(Me.trbB)
+        Me.gbxLED.Controls.Add(Me.btnDemoW)
+        Me.gbxLED.Controls.Add(Me.lblB)
+        Me.gbxLED.Controls.Add(Me.btnDemoB)
+        Me.gbxLED.Controls.Add(Me.lblG)
+        Me.gbxLED.Controls.Add(Me.btnDemoG)
+        Me.gbxLED.Controls.Add(Me.lblR)
+        Me.gbxLED.Controls.Add(Me.btnDemoR)
+        Me.gbxLED.Controls.Add(Me.cmbLEDCH)
+        Me.gbxLED.Controls.Add(Me.btnLightDemo)
+        Me.gbxLED.Location = New System.Drawing.Point(527, 414)
+        Me.gbxLED.Name = "gbxLED"
+        Me.gbxLED.Size = New System.Drawing.Size(508, 330)
+        Me.gbxLED.TabIndex = 32
+        Me.gbxLED.TabStop = False
+        Me.gbxLED.Text = "LED Manual Control"
+        '
+        'btnRGBValueSave
+        '
+        Me.btnRGBValueSave.Location = New System.Drawing.Point(253, 132)
+        Me.btnRGBValueSave.Name = "btnRGBValueSave"
+        Me.btnRGBValueSave.Size = New System.Drawing.Size(114, 23)
+        Me.btnRGBValueSave.TabIndex = 33
+        Me.btnRGBValueSave.Text = "Save Center RGB"
+        Me.btnRGBValueSave.UseVisualStyleBackColor = True
+        '
+        'btnDemoOFF
+        '
+        Me.btnDemoOFF.Location = New System.Drawing.Point(209, 26)
+        Me.btnDemoOFF.Name = "btnDemoOFF"
+        Me.btnDemoOFF.Size = New System.Drawing.Size(35, 23)
+        Me.btnDemoOFF.TabIndex = 32
+        Me.btnDemoOFF.Text = "OFF"
+        Me.btnDemoOFF.UseVisualStyleBackColor = True
+        '
+        'trbR
+        '
+        Me.trbR.Location = New System.Drawing.Point(15, 133)
+        Me.trbR.Maximum = 255
+        Me.trbR.Minimum = 1
+        Me.trbR.Name = "trbR"
+        Me.trbR.Size = New System.Drawing.Size(205, 45)
+        Me.trbR.TabIndex = 1
+        Me.trbR.Value = 1
+        '
+        'trbG
+        '
+        Me.trbG.Location = New System.Drawing.Point(15, 184)
+        Me.trbG.Maximum = 255
+        Me.trbG.Minimum = 1
+        Me.trbG.Name = "trbG"
+        Me.trbG.Size = New System.Drawing.Size(205, 45)
+        Me.trbG.TabIndex = 6
+        Me.trbG.Value = 1
+        '
+        'trbB
+        '
+        Me.trbB.Location = New System.Drawing.Point(15, 235)
+        Me.trbB.Maximum = 255
+        Me.trbB.Minimum = 1
+        Me.trbB.Name = "trbB"
+        Me.trbB.Size = New System.Drawing.Size(205, 45)
+        Me.trbB.TabIndex = 5
+        Me.trbB.Value = 1
+        '
+        'lblB
+        '
+        Me.lblB.AutoSize = True
+        Me.lblB.Location = New System.Drawing.Point(226, 239)
+        Me.lblB.Name = "lblB"
+        Me.lblB.Size = New System.Drawing.Size(11, 12)
+        Me.lblB.TabIndex = 4
+        Me.lblB.Text = "1"
+        '
+        'lblG
+        '
+        Me.lblG.AutoSize = True
+        Me.lblG.Location = New System.Drawing.Point(226, 188)
+        Me.lblG.Name = "lblG"
+        Me.lblG.Size = New System.Drawing.Size(11, 12)
+        Me.lblG.TabIndex = 3
+        Me.lblG.Text = "1"
+        '
+        'lblR
+        '
+        Me.lblR.AutoSize = True
+        Me.lblR.Location = New System.Drawing.Point(226, 137)
+        Me.lblR.Name = "lblR"
+        Me.lblR.Size = New System.Drawing.Size(11, 12)
+        Me.lblR.TabIndex = 2
+        Me.lblR.Text = "1"
+        '
+        'cmbLEDCH
+        '
+        Me.cmbLEDCH.FormattingEnabled = True
+        Me.cmbLEDCH.Location = New System.Drawing.Point(15, 104)
+        Me.cmbLEDCH.Name = "cmbLEDCH"
+        Me.cmbLEDCH.Size = New System.Drawing.Size(100, 20)
+        Me.cmbLEDCH.TabIndex = 0
+        '
+        'lblRGBFromROI
+        '
+        Me.lblRGBFromROI.AutoSize = True
+        Me.lblRGBFromROI.Location = New System.Drawing.Point(251, 166)
+        Me.lblRGBFromROI.Name = "lblRGBFromROI"
+        Me.lblRGBFromROI.Size = New System.Drawing.Size(53, 12)
+        Me.lblRGBFromROI.TabIndex = 34
+        Me.lblRGBFromROI.Text = "RGB,x,x,x"
+        '
         'MainWindow
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1110, 757)
-        Me.Controls.Add(Me.tbxChRGB)
-        Me.Controls.Add(Me.btnSingleLED)
-        Me.Controls.Add(Me.btnSetRGB)
-        Me.Controls.Add(Me.tbxRGBDemo)
-        Me.Controls.Add(Me.btnDemoW)
+        Me.ClientSize = New System.Drawing.Size(1046, 763)
         Me.Controls.Add(Me.gbxCollect)
         Me.Controls.Add(Me.GroupBox2)
-        Me.Controls.Add(Me.btnDemoB)
         Me.Controls.Add(Me.GroupBox3)
-        Me.Controls.Add(Me.btnDemoG)
-        Me.Controls.Add(Me.btnDemoR)
-        Me.Controls.Add(Me.btnLightDemo)
+        Me.Controls.Add(Me.gbxLED)
         Me.Name = "MainWindow"
         Me.Text = "Collecting My Image dataset"
         CType(Me.pbxMainRaw, System.ComponentModel.ISupportInitialize).EndInit()
@@ -532,8 +659,12 @@ Partial Class MainWindow
         Me.GroupBox3.ResumeLayout(False)
         Me.gbxCollect.ResumeLayout(False)
         Me.gbxCollect.PerformLayout()
+        Me.gbxLED.ResumeLayout(False)
+        Me.gbxLED.PerformLayout()
+        CType(Me.trbR, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.trbG, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.trbB, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
-        Me.PerformLayout()
 
     End Sub
 
@@ -582,4 +713,15 @@ Partial Class MainWindow
     Friend WithEvents Label3 As Label
     Friend WithEvents btnSingleLED As Button
     Friend WithEvents tbxChRGB As TextBox
+    Friend WithEvents gbxLED As GroupBox
+    Friend WithEvents cmbLEDCH As ComboBox
+    Friend WithEvents trbG As TrackBar
+    Friend WithEvents trbB As TrackBar
+    Friend WithEvents lblB As Label
+    Friend WithEvents lblG As Label
+    Friend WithEvents lblR As Label
+    Friend WithEvents trbR As TrackBar
+    Friend WithEvents btnDemoOFF As Button
+    Friend WithEvents btnRGBValueSave As Button
+    Friend WithEvents lblRGBFromROI As Label
 End Class

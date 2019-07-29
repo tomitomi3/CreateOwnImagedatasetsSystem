@@ -1,4 +1,7 @@
-﻿Imports System.IO.Ports
+﻿Imports System.IO
+Imports System.IO.Ports
+Imports System.Runtime.InteropServices
+Imports System.Text
 Imports System.Windows.Forms
 Imports OpenCvSharp
 
@@ -136,6 +139,11 @@ Public Class MainWindow
                 _cap.Set(CaptureProperty.FrameHeight, 1536)
             End If
 
+            '_cap.Set(CaptureProperty.AutoExposure, 1)
+            '_cap.Set(CaptureProperty.Exposure, 2.0)
+            '_cap.Set(CaptureProperty.Gain, 2.0)
+            '_cap.Set(CaptureProperty.Gamma, 0.5)
+
             'CapuretPropery
             Console.WriteLine("Camera ID    :{0}", camId)
             Console.WriteLine(" Width       :{0}", _cap.Get(CaptureProperty.FrameWidth))
@@ -149,10 +157,6 @@ Public Class MainWindow
             Console.WriteLine(" Gain        :{0}", _cap.Get(CaptureProperty.Gain))
             Console.WriteLine(" Temperature :{0}", _cap.Get(CaptureProperty.Temperature))
             Console.WriteLine(" XI_AutoWB   :{0}", _cap.Get(CaptureProperty.XI_AutoWB))
-
-            '_cap.Set(CaptureProperty.AutoExposure, 1)
-            '_cap.Set(CaptureProperty.AutoExposure, 1)
-            '_cap.Set(CaptureProperty.Exposure, 2.0)
         End If
     End Sub
 
@@ -252,6 +256,24 @@ Public Class MainWindow
 
         'average
         Dim tempMat = GetAvgMat(clipExMat, avgNum)
+
+        'get RGB Value from ROI
+        Me.Invoke(
+            Sub()
+                Dim g_width As Integer = tempMat.Width / 2
+                Dim g_height As Integer = tempMat.Height / 2
+                Dim g_data = tempMat(g_width, g_width + 1, g_height, g_height + 1)
+
+                'B G Rの並び
+                Dim prt = g_data.Data()
+                Dim b = Marshal.ReadByte(prt)
+                Dim g = Marshal.ReadByte(prt + 1)
+                Dim r = Marshal.ReadByte(prt + 2)
+
+                'lbl update
+                Me.lblRGBFromROI.Text = String.Format("RGB,{0},{1},{2}", r, g, b)
+            End Sub
+            )
 
         'update
         Dim clipRect = New Rect(New Point(exHalf, exHalf), New Size(CLIP_SIZE, CLIP_SIZE))
@@ -359,6 +381,24 @@ Public Class MainWindow
         System.Threading.Thread.Sleep(waitMs)
     End Sub
 
+    ''' <summary>
+    ''' 1CHのLED制御
+    ''' </summary>
+    ''' <param name="brightness"></param>
+    ''' <param name="ch"></param>
+    ''' <param name="r"></param>
+    ''' <param name="g"></param>
+    ''' <param name="b"></param>
+    Private Sub SendLightLED(ByVal brightness As Integer, ByVal ch As Integer, ByVal r As Integer, ByVal g As Integer, ByVal b As Integer)
+        _sendData.Clear()
+        _sendData.Add(brightness)
+        _sendData.Add(ch)
+        _sendData.Add(r)
+        _sendData.Add(g)
+        _sendData.Add(b)
+        SendArduinoWithCheckSum()
+    End Sub
+
 #End Region
 
 #Region "Public event"
@@ -400,10 +440,8 @@ Public Class MainWindow
         Next
         If cmbCamID.Items.Count = 0 Then
             'do nothing
-        ElseIf cmbCamID.Items.Count = 1 Then
+        Else
             cmbCamID.SelectedIndex = 0
-        ElseIf cmbCamID.Items.Count = 2 Then
-            cmbCamID.SelectedIndex = 1
         End If
 
         'cmb box clip size
@@ -422,7 +460,7 @@ Public Class MainWindow
             Dim eName As String = [Enum].GetName(GetType(EnumCameraImgSize), tempVal)
             cmbCamImgSize.Items.Add(eName)
         Next
-        cmbCamImgSize.SelectedIndex = 2
+        cmbCamImgSize.SelectedIndex = 3
 
         'cmb box image size
         cmbImgSize.DropDownStyle = ComboBoxStyle.DropDownList
@@ -455,6 +493,14 @@ Public Class MainWindow
             Next
             Me.cbxPort.SelectedIndex = 0
         End If
+
+        'LED Manual
+        cmbLEDCH.DropDownStyle = ComboBoxStyle.DropDownList
+        cmbLEDCH.Items.Clear()
+        For i = 0 To 5 - 1
+            cmbLEDCH.Items.Add(String.Format("CH{0}", i))
+        Next
+        cmbLEDCH.SelectedIndex = 1
 
         'UI
         Me.btnOpenClose.Enabled = False
@@ -728,6 +774,10 @@ Public Class MainWindow
         SendArduinoWithCheckSum()
     End Sub
 
+    Private Sub btnDemoOFF_Click(sender As Object, e As EventArgs) Handles btnDemoOFF.Click
+        Me.tbxRGBDemo.Text = "0,0,0"
+    End Sub
+
     Private Sub btnDemoR_Click(sender As Object, e As EventArgs) Handles btnDemoR.Click
         Me.tbxRGBDemo.Text = "255,0,0"
     End Sub
@@ -750,16 +800,36 @@ Public Class MainWindow
         If split.Count <> 4 Then
             Return
         End If
-
-        _sendData.Clear()
-        _sendData.Add(LightBrightness)
-        _sendData.Add(Byte.Parse(split(0)))
-        _sendData.Add(Byte.Parse(split(1)))
-        _sendData.Add(Byte.Parse(split(2)))
-        _sendData.Add(Byte.Parse(split(3)))
+        Me.SendLightLED(LightBrightness, Byte.Parse(split(0)), Byte.Parse(split(1)), Byte.Parse(split(2)), Byte.Parse(split(3)))
         SendArduinoWithCheckSum()
     End Sub
 
+    Private Sub tbrR_Scroll(sender As Object, e As EventArgs) Handles trbR.Scroll
+        Me.lblR.Text = trbR.Value.ToString()
+        Me.SendLightLED(LightBrightness, Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
+        Me.SendArduinoWithCheckSum()
+    End Sub
+
+    Private Sub tbrG_Scroll(sender As Object, e As EventArgs) Handles trbG.Scroll
+        Me.lblG.Text = trbG.Value.ToString()
+        Me.SendLightLED(LightBrightness, Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
+        Me.SendArduinoWithCheckSum()
+    End Sub
+
+    Private Sub tbgB_Scroll(sender As Object, e As EventArgs) Handles trbB.Scroll
+        Me.lblB.Text = trbB.Value.ToString()
+        Me.SendLightLED(LightBrightness, Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
+        Me.SendArduinoWithCheckSum()
+    End Sub
+
+    Private Sub btnRGBValueSave_Click(sender As Object, e As EventArgs) Handles btnRGBValueSave.Click
+        SyncLock objlock
+            Dim temp = lblRGBFromROI.Text.Split(",")
+            Using writer As StreamWriter = New StreamWriter("RGBVALUE_DEBUG.txt", append:=True, encoding:=Encoding.GetEncoding("Shift_JIS"))
+                writer.WriteLine("{0},{1},{2},{3},{4},{5}", trbR.Value, trbG.Value, trbB.Value, temp(1), temp(2), temp(3))
+            End Using
+        End SyncLock
+    End Sub
 #End Region
 End Class
 
