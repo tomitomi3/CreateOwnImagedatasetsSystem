@@ -38,13 +38,16 @@ Public Class MainWindow
     Private _zoomRatio As Double = 0.0
 
     Private _sumMat As New List(Of Mat)
+
     Private _avgCount As Byte = 0
 
     Private CLIP_SIZE_EX As Integer = 0
+
     Private CLIP_SIZE As Integer = 0
 
-    Private _imgMat As Mat = Nothing
-    Private _imgExMat As Mat = Nothing
+    Private _rawClipMat As Mat = Nothing
+
+    Private _rawClipExMat As Mat = Nothing
 
     ''' <summary>
     ''' クリップ画像サイズ
@@ -55,6 +58,8 @@ Public Class MainWindow
         ClipSize300x300 = 300
         ClipSize350x350 = 350
         ClipSize400x400 = 400
+        ClipSize450x450 = 450
+        ClipSize500x500 = 500
     End Enum
 
     ''' <summary>
@@ -92,72 +97,79 @@ Public Class MainWindow
     ''' Initialize camera
     ''' </summary>
     Private Sub InitCam()
-        If _cap Is Nothing Then
-            Dim camId = 0
-            Me.Invoke(
-                        Sub()
-                            camId = CInt(Me.cmbCamID.SelectedItem.ToString())
-                        End Sub
-                        )
-            _cap = New OpenCvSharp.VideoCapture(camId)
-
-            '-----------------------------------------------
-            'ここはUSBカメラによって適宜設定する
-            '-----------------------------------------------
-            Dim selectCamImgIndex = -1
-            Me.Invoke(
-                        Sub()
-                            selectCamImgIndex = Me.cmbCamImgSize.SelectedIndex
-                        End Sub
-                      )
-            If EnumCameraImgSize.Size640x480 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                _cap.Set(CaptureProperty.FrameWidth, 640)
-                _cap.Set(CaptureProperty.FrameHeight, 480)
-            ElseIf EnumCameraImgSize.Size800x600 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                _cap.Set(CaptureProperty.FrameWidth, 800)
-                _cap.Set(CaptureProperty.FrameHeight, 600)
-            ElseIf EnumCameraImgSize.Size1280x720 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                _cap.Set(CaptureProperty.FrameWidth, 1280)
-                _cap.Set(CaptureProperty.FrameHeight, 720)
-            ElseIf EnumCameraImgSize.Size1280x960 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                _cap.Set(CaptureProperty.FrameWidth, 1280)
-                _cap.Set(CaptureProperty.FrameHeight, 960)
-            ElseIf EnumCameraImgSize.Size1280x1024 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                _cap.Set(CaptureProperty.FrameWidth, 1280)
-                _cap.Set(CaptureProperty.FrameHeight, 1024)
-            ElseIf EnumCameraImgSize.Size1600x1200 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                _cap.Set(CaptureProperty.FrameWidth, 1600)
-                _cap.Set(CaptureProperty.FrameHeight, 1200)
-            ElseIf EnumCameraImgSize.Size1920x1080 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                _cap.Set(CaptureProperty.FrameWidth, 1920)
-                _cap.Set(CaptureProperty.FrameHeight, 1080)
-            ElseIf EnumCameraImgSize.Size1920x1200 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                _cap.Set(CaptureProperty.FrameWidth, 1920)
-                _cap.Set(CaptureProperty.FrameHeight, 1200)
-            ElseIf EnumCameraImgSize.Size2048x1536 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                _cap.Set(CaptureProperty.FrameWidth, 2048)
-                _cap.Set(CaptureProperty.FrameHeight, 1536)
-            End If
-
-            '_cap.Set(CaptureProperty.AutoExposure, 1)
-            '_cap.Set(CaptureProperty.Exposure, 2.0)
-            '_cap.Set(CaptureProperty.Gain, 2.0)
-            '_cap.Set(CaptureProperty.Gamma, 0.5)
-
-            'CapuretPropery
-            Console.WriteLine("Camera ID    :{0}", camId)
-            Console.WriteLine(" Width       :{0}", _cap.Get(CaptureProperty.FrameWidth))
-            Console.WriteLine(" Height      :{0}", _cap.Get(CaptureProperty.FrameHeight))
-            Console.WriteLine(" Exposure    :{0}", _cap.Get(CaptureProperty.Exposure))
-            Console.WriteLine(" AutoExposure:{0}", _cap.Get(CaptureProperty.AutoExposure))
-            Console.WriteLine(" Exposure    :{0}", _cap.Get(CaptureProperty.Exposure))
-            Console.WriteLine(" FPS         :{0}", _cap.Get(CaptureProperty.Fps))
-            Console.WriteLine(" FrameCount  :{0}", _cap.Get(CaptureProperty.FrameCount))
-            Console.WriteLine(" Gamma       :{0}", _cap.Get(CaptureProperty.Gamma))
-            Console.WriteLine(" Gain        :{0}", _cap.Get(CaptureProperty.Gain))
-            Console.WriteLine(" Temperature :{0}", _cap.Get(CaptureProperty.Temperature))
-            Console.WriteLine(" XI_AutoWB   :{0}", _cap.Get(CaptureProperty.XI_AutoWB))
+        If _cap IsNot Nothing Then
+            Return
         End If
+
+        'Camera IDからキャプチャ
+        Dim camId = 0
+        Me.Invoke(
+                    Sub()
+                        camId = CInt(Me.cmbCamID.SelectedItem.ToString())
+                    End Sub
+                    )
+        Me._cap = New OpenCvSharp.VideoCapture(camId)
+
+        'ここはUSBカメラによって適宜設定する
+        Dim selectCamImgIndex = -1
+        Me.Invoke(
+                    Sub()
+                        selectCamImgIndex = Me.cmbCamImgSize.SelectedIndex
+
+                        If EnumCameraImgSize.Size640x480 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                            _cap.Set(CaptureProperty.FrameWidth, 640)
+                            _cap.Set(CaptureProperty.FrameHeight, 480)
+                        ElseIf EnumCameraImgSize.Size800x600 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                            _cap.Set(CaptureProperty.FrameWidth, 800)
+                            _cap.Set(CaptureProperty.FrameHeight, 600)
+                        ElseIf EnumCameraImgSize.Size1280x720 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                            _cap.Set(CaptureProperty.FrameWidth, 1280)
+                            _cap.Set(CaptureProperty.FrameHeight, 720)
+                        ElseIf EnumCameraImgSize.Size1280x960 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                            _cap.Set(CaptureProperty.FrameWidth, 1280)
+                            _cap.Set(CaptureProperty.FrameHeight, 960)
+                        ElseIf EnumCameraImgSize.Size1280x1024 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                            _cap.Set(CaptureProperty.FrameWidth, 1280)
+                            _cap.Set(CaptureProperty.FrameHeight, 1024)
+                        ElseIf EnumCameraImgSize.Size1600x1200 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                            _cap.Set(CaptureProperty.FrameWidth, 1600)
+                            _cap.Set(CaptureProperty.FrameHeight, 1200)
+                        ElseIf EnumCameraImgSize.Size1920x1080 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                            _cap.Set(CaptureProperty.FrameWidth, 1920)
+                            _cap.Set(CaptureProperty.FrameHeight, 1080)
+                        ElseIf EnumCameraImgSize.Size1920x1200 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                            _cap.Set(CaptureProperty.FrameWidth, 1920)
+                            _cap.Set(CaptureProperty.FrameHeight, 1200)
+                        ElseIf EnumCameraImgSize.Size2048x1536 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                            _cap.Set(CaptureProperty.FrameWidth, 2048)
+                            _cap.Set(CaptureProperty.FrameHeight, 1536)
+                        End If
+
+                        '_cap.Set(CaptureProperty.AutoExposure, 1)
+                        '_cap.Set(CaptureProperty.Exposure, 2.0)
+                        '_cap.Set(CaptureProperty.Gain, 2.0)
+                        '_cap.Set(CaptureProperty.Gamma, 0.5)
+
+                        'CapuretPropery
+                        Console.WriteLine("Camera ID    :{0}", camId)
+                        Console.WriteLine(" Width       :{0}", _cap.Get(CaptureProperty.FrameWidth))
+                        Console.WriteLine(" Height      :{0}", _cap.Get(CaptureProperty.FrameHeight))
+                        Console.WriteLine(" Exposure    :{0}", _cap.Get(CaptureProperty.Exposure))
+                        Console.WriteLine(" AutoExposure:{0}", _cap.Get(CaptureProperty.AutoExposure))
+                        Console.WriteLine(" Exposure    :{0}", _cap.Get(CaptureProperty.Exposure))
+                        Console.WriteLine(" FPS         :{0}", _cap.Get(CaptureProperty.Fps))
+                        Console.WriteLine(" FrameCount  :{0}", _cap.Get(CaptureProperty.FrameCount))
+                        Console.WriteLine(" Gamma       :{0}", _cap.Get(CaptureProperty.Gamma))
+                        Console.WriteLine(" Gain        :{0}", _cap.Get(CaptureProperty.Gain))
+                        Console.WriteLine(" Temperature :{0}", _cap.Get(CaptureProperty.Temperature))
+                        Console.WriteLine(" XI_AutoWB   :{0}", _cap.Get(CaptureProperty.XI_AutoWB))
+
+                        Me._zoomRatio = _cap.FrameWidth / Me.pbxMainRaw.Width
+                        Me._rawWidth = _cap.FrameWidth
+                        Me._rawHeight = _cap.FrameHeight
+
+                    End Sub
+                  )
     End Sub
 
     ''' <summary>
@@ -177,27 +189,47 @@ Public Class MainWindow
 
                 'capture
                 Using mat = New Mat()
-                    If _cap.Read(mat) = False Then
+                    If Me._cap.Read(mat) = False Then
                         Continue While
                     End If
 
                     'update
                     SyncLock objlock
-                        UpdateMainRawImg(mat)
+                        'Get image
+                        Dim clipEditMat As Mat = Nothing
+                        Me.GetClipImageFromCameraImage(mat, clipEditMat, Me._rawClipMat, Me._rawClipExMat)
+
+                        'Debug get RGB Value from ROI
+                        Dim g_width As Integer = Me._rawClipMat.Width / 2
+                        Dim g_height As Integer = Me._rawClipMat.Height / 2
+                        Dim g_data = Me._rawClipMat(g_width, g_width + 1, g_height, g_height + 1)
+                        Dim prt = g_data.Data() 'B G Rの並び
+                        Dim b = Marshal.ReadByte(prt)
+                        Dim g = Marshal.ReadByte(prt + 1)
+                        Dim r = Marshal.ReadByte(prt + 2)
+
+                        'Update UI
+                        Me.Invoke(
+                            Sub()
+                                Me.pbxMainRaw.ImageIpl = clipEditMat
+                                Me.pbxProcessed.ImageIpl = Me._rawClipMat
+                                Me.lblRGBFromROI.Text = String.Format("RGB,{0},{1},{2}", r, g, b)
+                            End Sub
+                            )
                     End SyncLock
                 End Using
             Catch ex As Threading.ThreadAbortException
                 Console.WriteLine("throw ThreadAbortException")
-                _cap.Release()
-                _cap = Nothing
+                Me._cap.Release()
+                Me._cap = Nothing
                 Exit While
             Catch ex As Exception
-                Console.WriteLine("Ex")
+                Console.WriteLine("Catch Exception!")
                 Console.WriteLine("{0}", ex.Message)
             Finally
-                Dim saumMemory = GC.GetTotalMemory(True)
-                Dim thd As Long = 1024 * 1024 * 128
-                If saumMemory > thd Then
+                Dim sumUsingMemory = GC.GetTotalMemory(True)
+                Dim thd As Long = 1024 * 1024 * 256
+                If sumUsingMemory > thd Then
                     GC.Collect()
                 End If
             End Try
@@ -210,81 +242,65 @@ Public Class MainWindow
     End Sub
 
     ''' <summary>
-    ''' update image
+    ''' Clip image from Camera
     ''' </summary>
-    ''' <param name="rawMat">raw image mat</param>
-    Private Sub UpdateMainRawImg(ByRef rawMat As Mat)
-        '画像の更新
-        _zoomRatio = rawMat.Width / pbxMainRaw.Width
-        _rawWidth = rawMat.Width
-        _rawHeight = rawMat.Height
-
-        'クリップ
-        Dim dispW = rawMat.Width / _zoomRatio
-        Dim dispH = rawMat.Height / _zoomRatio
-        Dim exHalf = CInt(((CLIP_SIZE_EX - CLIP_SIZE) / 2.0))
-        Dim exHalfRatio = CInt(((CLIP_SIZE_EX - CLIP_SIZE) / 2.0) / _zoomRatio)
+    ''' <param name="rawCameraMat">Camera</param>
+    ''' <param name="editClipMat">out disp edit mat</param>
+    ''' <param name="rawClipMat">out Clip mat</param>
+    ''' <param name="rawClipExMat">out ClipEx mat</param>
+    Private Sub GetClipImageFromCameraImage(ByRef rawCameraMat As Mat, ByRef editClipMat As Mat, ByRef rawClipMat As Mat, ByRef rawClipExMat As Mat)
+        'clip pos
+        Dim dispW = rawCameraMat.Width / _zoomRatio
+        Dim dispH = rawCameraMat.Height / _zoomRatio
+        Dim rawDiffHalf = (CLIP_SIZE_EX - CLIP_SIZE) / 2.0
+        Dim dispDiffHalf = (CLIP_SIZE_EX - CLIP_SIZE) / 2.0 / _zoomRatio
+        Dim dispClipHalf = CLIP_SIZE_EX / 2.0 / _zoomRatio
 
         '縮小して表示画像を表示
-        Using dst As New Mat(dispW, dispH, MatType.CV_8UC3)
+        Using dispEditClipMat As New Mat(dispW, dispH, MatType.CV_8UC3)
             '縮小
-            Cv2.Resize(rawMat, dst, New OpenCvSharp.Size(dispW, dispH), interpolation:=InterpolationFlags.Linear)
+            Cv2.Resize(rawCameraMat, dispEditClipMat, New OpenCvSharp.Size(dispW, dispH), interpolation:=InterpolationFlags.Cubic)
 
-            'クリップの枠を描画
-            'CLIP_SIZE_EX
-            Dim rectSize = Nothing
-            rectSize = New Rect(Me._clickedPos, New Size(CLIP_SIZE_EX / _zoomRatio, CLIP_SIZE_EX / _zoomRatio))
-            Cv2.Rectangle(dst, rectSize, New Scalar(0, 0, 255), 1)
-            'CLIP_SIZE
-            rectSize = New Rect(New Point(Me._clickedPos.X + exHalfRatio, Me._clickedPos.Y + exHalfRatio), New Size(CLIP_SIZE / _zoomRatio, CLIP_SIZE / _zoomRatio))
-            Cv2.Rectangle(dst, rectSize, New Scalar(255, 0, 0), 1)
+            'CLIP_SIZE_EX枠
+            Dim rectSizeDisp = Nothing
+            rectSizeDisp = New Rect(Me._clickedPos, New Size(CLIP_SIZE_EX / _zoomRatio, CLIP_SIZE_EX / _zoomRatio))
+            Cv2.Rectangle(dispEditClipMat, rectSizeDisp, New Scalar(0, 0, 255), 1)
+
+            'CLIP_SIZE枠
+            rectSizeDisp = New Rect(New Point(Me._clickedPos.X + dispDiffHalf, Me._clickedPos.Y + dispDiffHalf), New Size(CLIP_SIZE / _zoomRatio, CLIP_SIZE / _zoomRatio))
+            Cv2.Rectangle(dispEditClipMat, rectSizeDisp, New Scalar(0, 255, 0), 1)
+
+            'cross hair
+            Dim ptCrossHairX1 = New Point(dispClipHalf + Me._clickedPos.X - 5, dispClipHalf + Me._clickedPos.Y)
+            Dim ptCrossHairX2 = New Point(dispClipHalf + Me._clickedPos.X + 5, dispClipHalf + Me._clickedPos.Y)
+            Cv2.Line(dispEditClipMat, ptCrossHairX1, ptCrossHairX2, New Scalar(0, 0, 255), 1)
+            Dim ptCrossHairY1 = New Point(dispClipHalf + Me._clickedPos.X, dispClipHalf + Me._clickedPos.Y - 5)
+            Dim ptCrossHairY2 = New Point(dispClipHalf + Me._clickedPos.X, dispClipHalf + Me._clickedPos.Y + 5)
+            Cv2.Line(dispEditClipMat, ptCrossHairY1, ptCrossHairY2, New Scalar(0, 0, 255), 1)
 
             'Update
-            Me.pbxMainRaw.ImageIpl = dst
+            editClipMat = dispEditClipMat.Clone()
         End Using
 
-        'Clip image from raw image
-        Dim mousePos As New Point(_clickedPos.X * _zoomRatio, _clickedPos.Y * _zoomRatio)
-        Dim clipExRect = New Rect(mousePos, New Size(CLIP_SIZE_EX, CLIP_SIZE_EX))
-        Dim clipExMat = rawMat(clipExRect)
+        'ClipEx image from raw image
+        Dim mousePos As New Point(Me._clickedPos.X * _zoomRatio, Me._clickedPos.Y * _zoomRatio)
+        Dim tempRawClipExMat = rawCameraMat(mousePos.Y, mousePos.Y + CLIP_SIZE_EX, mousePos.X, mousePos.X + CLIP_SIZE_EX)
 
         'get average num
         Dim avgNum As Integer = 1
-        If String.IsNullOrEmpty(Me.tbxAverage.Text) = False Then
+        Dim isAverage = (Me.cbxAveraging.Checked = True) And (String.IsNullOrEmpty(Me.tbxAverage.Text) = False) And (Integer.Parse(Me.tbxAverage.Text) >= 1)
+        Dim rawClipRect = New Rect(New Point(rawDiffHalf, rawDiffHalf), New Size(CLIP_SIZE, CLIP_SIZE))
+        If isAverage = True Then
+            'Do Average
             avgNum = Integer.Parse(Me.tbxAverage.Text)
-        End If
-
-        'average
-        Dim tempMat = GetAvgMat(clipExMat, avgNum)
-
-        'get RGB Value from ROI
-        Me.Invoke(
-            Sub()
-                Dim g_width As Integer = tempMat.Width / 2
-                Dim g_height As Integer = tempMat.Height / 2
-                Dim g_data = tempMat(g_width, g_width + 1, g_height, g_height + 1)
-
-                'B G Rの並び
-                Dim prt = g_data.Data()
-                Dim b = Marshal.ReadByte(prt)
-                Dim g = Marshal.ReadByte(prt + 1)
-                Dim r = Marshal.ReadByte(prt + 2)
-
-                'lbl update
-                Me.lblRGBFromROI.Text = String.Format("RGB,{0},{1},{2}", r, g, b)
-            End Sub
-            )
-
-        'update
-        Dim clipRect = New Rect(New Point(exHalf, exHalf), New Size(CLIP_SIZE, CLIP_SIZE))
-        If cbxAveraging.Checked = True Then
-            Me._imgMat = tempMat(clipRect)
-            Me._imgExMat = tempMat
+            Dim averagedMat = Me.GetAvgMat(tempRawClipExMat, avgNum)
+            rawClipMat = averagedMat(rawClipRect)
+            rawClipExMat = averagedMat
         Else
-            Me._imgMat = clipExMat(clipRect)
-            Me._imgExMat = clipExMat
+            'not Average
+            rawClipMat = tempRawClipExMat(rawClipRect)
+            rawClipExMat = tempRawClipExMat
         End If
-        Me.pbxProcessed.ImageIpl = Me._imgMat
     End Sub
 
     ''' <summary>
@@ -660,7 +676,7 @@ Public Class MainWindow
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
     Private Sub btnSaveWithSettings_Click(sender As Object, e As EventArgs) Handles btnSaveWithSettings.Click
-        Dim ip = New ImageProcesser(Me._imgExMat)
+        Dim ip = New ImageProcesser(Me._rawClipExMat)
         If Me.cbxRotation.Checked Then
             ip.RotationStep = Integer.Parse(tbxRotation.Text)
         End If
