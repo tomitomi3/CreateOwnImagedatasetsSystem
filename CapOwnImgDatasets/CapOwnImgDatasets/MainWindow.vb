@@ -546,8 +546,8 @@ Public Class MainWindow
         cmbLEDCH.SelectedIndex = 1
 
         'UI
-        Me.btnOpenClose.Enabled = False
-        Me.cbxPort.Enabled = False
+        Me.btnOpenClose.Enabled = True
+        Me.cbxPort.Enabled = True
 
         'Image format
         cmbImageFormat.DropDownStyle = ComboBoxStyle.DropDownList
@@ -735,6 +735,10 @@ Public Class MainWindow
     End Sub
 
     Private Sub SaveImage()
+        If Me._rawClipMat Is Nothing OrElse Me._rawClipExMat Is Nothing Then
+            Return
+        End If
+
         Dim imgSize As Integer = CInt(EnumOutpuImageSize.ImageSize128x128)
         For Each tempVal In [Enum].GetValues(GetType(EnumOutpuImageSize))
             Dim eName As String = [Enum].GetName(GetType(EnumOutpuImageSize), tempVal)
@@ -763,7 +767,7 @@ Public Class MainWindow
     End Sub
 
     Private Const NUM_OF_LED As Integer = 5
-    Private Const LightBrightness As Byte = 64
+    Private Const LightBrightness As Byte = 255
     Private Const LightStep As Byte = 32
     Private Const SIZE_CH_COLOR As Integer = 4
     Private Const IDX_BRIGHTNESS As Integer = 0

@@ -183,6 +183,8 @@ Partial Class MainWindow
         'cbxLightCtrl
         '
         Me.cbxLightCtrl.AutoSize = True
+        Me.cbxLightCtrl.Checked = True
+        Me.cbxLightCtrl.CheckState = System.Windows.Forms.CheckState.Checked
         Me.cbxLightCtrl.Location = New System.Drawing.Point(196, 104)
         Me.cbxLightCtrl.Name = "cbxLightCtrl"
         Me.cbxLightCtrl.Size = New System.Drawing.Size(68, 16)
