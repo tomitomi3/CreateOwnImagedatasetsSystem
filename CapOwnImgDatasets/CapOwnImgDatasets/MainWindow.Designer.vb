@@ -61,6 +61,9 @@ Partial Class MainWindow
         Me.btnDemoB = New System.Windows.Forms.Button()
         Me.btnDemoW = New System.Windows.Forms.Button()
         Me.gbxCollect = New System.Windows.Forms.GroupBox()
+        Me.cmbImageFormat = New System.Windows.Forms.ComboBox()
+        Me.cbxColorOrGrayscale = New System.Windows.Forms.CheckBox()
+        Me.Label8 = New System.Windows.Forms.Label()
         Me.cmbCamImgSize = New System.Windows.Forms.ComboBox()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.tbxRGBDemo = New System.Windows.Forms.TextBox()
@@ -68,6 +71,7 @@ Partial Class MainWindow
         Me.btnSingleLED = New System.Windows.Forms.Button()
         Me.tbxChRGB = New System.Windows.Forms.TextBox()
         Me.gbxLED = New System.Windows.Forms.GroupBox()
+        Me.lblRGBFromROI = New System.Windows.Forms.Label()
         Me.btnRGBValueSave = New System.Windows.Forms.Button()
         Me.btnDemoOFF = New System.Windows.Forms.Button()
         Me.trbR = New System.Windows.Forms.TrackBar()
@@ -77,7 +81,6 @@ Partial Class MainWindow
         Me.lblG = New System.Windows.Forms.Label()
         Me.lblR = New System.Windows.Forms.Label()
         Me.cmbLEDCH = New System.Windows.Forms.ComboBox()
-        Me.lblRGBFromROI = New System.Windows.Forms.Label()
         CType(Me.pbxMainRaw, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.pbxProcessed, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox2.SuspendLayout()
@@ -137,7 +140,7 @@ Partial Class MainWindow
         Me.GroupBox2.Font = New System.Drawing.Font("MS UI Gothic", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(128, Byte))
         Me.GroupBox2.Location = New System.Drawing.Point(12, 12)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(509, 396)
+        Me.GroupBox2.Size = New System.Drawing.Size(509, 388)
         Me.GroupBox2.TabIndex = 7
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Source"
@@ -148,7 +151,7 @@ Partial Class MainWindow
         Me.GroupBox3.Font = New System.Drawing.Font("MS UI Gothic", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(128, Byte))
         Me.GroupBox3.Location = New System.Drawing.Point(527, 12)
         Me.GroupBox3.Name = "GroupBox3"
-        Me.GroupBox3.Size = New System.Drawing.Size(508, 396)
+        Me.GroupBox3.Size = New System.Drawing.Size(508, 388)
         Me.GroupBox3.TabIndex = 8
         Me.GroupBox3.TabStop = False
         Me.GroupBox3.Text = "Cliped Image(ROI)"
@@ -170,7 +173,7 @@ Partial Class MainWindow
         Me.cbxRotation.AutoSize = True
         Me.cbxRotation.Checked = True
         Me.cbxRotation.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.cbxRotation.Location = New System.Drawing.Point(13, 133)
+        Me.cbxRotation.Location = New System.Drawing.Point(13, 131)
         Me.cbxRotation.Name = "cbxRotation"
         Me.cbxRotation.Size = New System.Drawing.Size(67, 16)
         Me.cbxRotation.TabIndex = 9
@@ -189,7 +192,7 @@ Partial Class MainWindow
         '
         'btnSave
         '
-        Me.btnSave.Location = New System.Drawing.Point(13, 296)
+        Me.btnSave.Location = New System.Drawing.Point(13, 319)
         Me.btnSave.Name = "btnSave"
         Me.btnSave.Size = New System.Drawing.Size(92, 23)
         Me.btnSave.TabIndex = 10
@@ -198,7 +201,7 @@ Partial Class MainWindow
         '
         'tbxFolderPath
         '
-        Me.tbxFolderPath.Location = New System.Drawing.Point(13, 228)
+        Me.tbxFolderPath.Location = New System.Drawing.Point(13, 251)
         Me.tbxFolderPath.Name = "tbxFolderPath"
         Me.tbxFolderPath.Size = New System.Drawing.Size(457, 19)
         Me.tbxFolderPath.TabIndex = 11
@@ -215,7 +218,7 @@ Partial Class MainWindow
         'Label4
         '
         Me.Label4.AutoSize = True
-        Me.Label4.Location = New System.Drawing.Point(14, 213)
+        Me.Label4.Location = New System.Drawing.Point(14, 236)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(30, 12)
         Me.Label4.TabIndex = 13
@@ -224,7 +227,7 @@ Partial Class MainWindow
         'Label5
         '
         Me.Label5.AutoSize = True
-        Me.Label5.Location = New System.Drawing.Point(9, 160)
+        Me.Label5.Location = New System.Drawing.Point(9, 183)
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(36, 12)
         Me.Label5.TabIndex = 14
@@ -232,7 +235,7 @@ Partial Class MainWindow
         '
         'tbxCorrectName
         '
-        Me.tbxCorrectName.Location = New System.Drawing.Point(13, 271)
+        Me.tbxCorrectName.Location = New System.Drawing.Point(13, 294)
         Me.tbxCorrectName.Name = "tbxCorrectName"
         Me.tbxCorrectName.Size = New System.Drawing.Size(188, 19)
         Me.tbxCorrectName.TabIndex = 15
@@ -240,7 +243,7 @@ Partial Class MainWindow
         'Label6
         '
         Me.Label6.AutoSize = True
-        Me.Label6.Location = New System.Drawing.Point(14, 256)
+        Me.Label6.Location = New System.Drawing.Point(14, 279)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(177, 12)
         Me.Label6.TabIndex = 13
@@ -249,14 +252,14 @@ Partial Class MainWindow
         'cmbImgSize
         '
         Me.cmbImgSize.FormattingEnabled = True
-        Me.cmbImgSize.Location = New System.Drawing.Point(74, 178)
+        Me.cmbImgSize.Location = New System.Drawing.Point(74, 201)
         Me.cmbImgSize.Name = "cmbImgSize"
         Me.cmbImgSize.Size = New System.Drawing.Size(121, 20)
         Me.cmbImgSize.TabIndex = 16
         '
         'btnOpenFolder
         '
-        Me.btnOpenFolder.Location = New System.Drawing.Point(395, 202)
+        Me.btnOpenFolder.Location = New System.Drawing.Point(395, 225)
         Me.btnOpenFolder.Name = "btnOpenFolder"
         Me.btnOpenFolder.Size = New System.Drawing.Size(75, 23)
         Me.btnOpenFolder.TabIndex = 10
@@ -266,7 +269,7 @@ Partial Class MainWindow
         'Label7
         '
         Me.Label7.AutoSize = True
-        Me.Label7.Location = New System.Drawing.Point(14, 181)
+        Me.Label7.Location = New System.Drawing.Point(14, 204)
         Me.Label7.Name = "Label7"
         Me.Label7.Size = New System.Drawing.Size(58, 12)
         Me.Label7.TabIndex = 6
@@ -274,14 +277,14 @@ Partial Class MainWindow
         '
         'tbxSlide
         '
-        Me.tbxSlide.Location = New System.Drawing.Point(281, 129)
+        Me.tbxSlide.Location = New System.Drawing.Point(281, 127)
         Me.tbxSlide.Name = "tbxSlide"
         Me.tbxSlide.Size = New System.Drawing.Size(36, 19)
         Me.tbxSlide.TabIndex = 18
         '
         'tbxRotation
         '
-        Me.tbxRotation.Location = New System.Drawing.Point(87, 130)
+        Me.tbxRotation.Location = New System.Drawing.Point(87, 128)
         Me.tbxRotation.Name = "tbxRotation"
         Me.tbxRotation.Size = New System.Drawing.Size(37, 19)
         Me.tbxRotation.TabIndex = 19
@@ -290,7 +293,7 @@ Partial Class MainWindow
         'cbxSlide
         '
         Me.cbxSlide.AutoSize = True
-        Me.cbxSlide.Location = New System.Drawing.Point(196, 132)
+        Me.cbxSlide.Location = New System.Drawing.Point(196, 130)
         Me.cbxSlide.Name = "cbxSlide"
         Me.cbxSlide.Size = New System.Drawing.Size(84, 16)
         Me.cbxSlide.TabIndex = 20
@@ -300,7 +303,7 @@ Partial Class MainWindow
         'Label11
         '
         Me.Label11.AutoSize = True
-        Me.Label11.Location = New System.Drawing.Point(130, 133)
+        Me.Label11.Location = New System.Drawing.Point(130, 131)
         Me.Label11.Name = "Label11"
         Me.Label11.Size = New System.Drawing.Size(51, 12)
         Me.Label11.TabIndex = 6
@@ -309,7 +312,7 @@ Partial Class MainWindow
         'Label12
         '
         Me.Label12.AutoSize = True
-        Me.Label12.Location = New System.Drawing.Point(324, 132)
+        Me.Label12.Location = New System.Drawing.Point(324, 130)
         Me.Label12.Name = "Label12"
         Me.Label12.Size = New System.Drawing.Size(57, 12)
         Me.Label12.TabIndex = 6
@@ -342,7 +345,7 @@ Partial Class MainWindow
         '
         'btnSaveWithSettings
         '
-        Me.btnSaveWithSettings.Location = New System.Drawing.Point(111, 296)
+        Me.btnSaveWithSettings.Location = New System.Drawing.Point(111, 319)
         Me.btnSaveWithSettings.Name = "btnSaveWithSettings"
         Me.btnSaveWithSettings.Size = New System.Drawing.Size(114, 23)
         Me.btnSaveWithSettings.TabIndex = 10
@@ -352,7 +355,7 @@ Partial Class MainWindow
         'cbxFlip
         '
         Me.cbxFlip.AutoSize = True
-        Me.cbxFlip.Location = New System.Drawing.Point(402, 131)
+        Me.cbxFlip.Location = New System.Drawing.Point(402, 129)
         Me.cbxFlip.Name = "cbxFlip"
         Me.cbxFlip.Size = New System.Drawing.Size(43, 16)
         Me.cbxFlip.TabIndex = 22
@@ -432,6 +435,9 @@ Partial Class MainWindow
         '
         'gbxCollect
         '
+        Me.gbxCollect.Controls.Add(Me.cmbImageFormat)
+        Me.gbxCollect.Controls.Add(Me.cbxColorOrGrayscale)
+        Me.gbxCollect.Controls.Add(Me.Label8)
         Me.gbxCollect.Controls.Add(Me.cmbCamImgSize)
         Me.gbxCollect.Controls.Add(Me.Label1)
         Me.gbxCollect.Controls.Add(Me.Label11)
@@ -464,12 +470,39 @@ Partial Class MainWindow
         Me.gbxCollect.Controls.Add(Me.Label2)
         Me.gbxCollect.Controls.Add(Me.Label5)
         Me.gbxCollect.Font = New System.Drawing.Font("MS UI Gothic", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(128, Byte))
-        Me.gbxCollect.Location = New System.Drawing.Point(12, 414)
+        Me.gbxCollect.Location = New System.Drawing.Point(12, 406)
         Me.gbxCollect.Name = "gbxCollect"
-        Me.gbxCollect.Size = New System.Drawing.Size(509, 330)
+        Me.gbxCollect.Size = New System.Drawing.Size(509, 366)
         Me.gbxCollect.TabIndex = 27
         Me.gbxCollect.TabStop = False
         Me.gbxCollect.Text = "Settings for Collect"
+        '
+        'cmbImageFormat
+        '
+        Me.cmbImageFormat.FormattingEnabled = True
+        Me.cmbImageFormat.Location = New System.Drawing.Point(253, 201)
+        Me.cmbImageFormat.Name = "cmbImageFormat"
+        Me.cmbImageFormat.Size = New System.Drawing.Size(86, 20)
+        Me.cmbImageFormat.TabIndex = 33
+        '
+        'cbxColorOrGrayscale
+        '
+        Me.cbxColorOrGrayscale.AutoSize = True
+        Me.cbxColorOrGrayscale.Location = New System.Drawing.Point(13, 159)
+        Me.cbxColorOrGrayscale.Name = "cbxColorOrGrayscale"
+        Me.cbxColorOrGrayscale.Size = New System.Drawing.Size(75, 16)
+        Me.cbxColorOrGrayscale.TabIndex = 32
+        Me.cbxColorOrGrayscale.Text = "Grayscale"
+        Me.cbxColorOrGrayscale.UseVisualStyleBackColor = True
+        '
+        'Label8
+        '
+        Me.Label8.AutoSize = True
+        Me.Label8.Location = New System.Drawing.Point(206, 204)
+        Me.Label8.Name = "Label8"
+        Me.Label8.Size = New System.Drawing.Size(43, 12)
+        Me.Label8.TabIndex = 31
+        Me.Label8.Text = "Format:"
         '
         'cmbCamImgSize
         '
@@ -543,12 +576,21 @@ Partial Class MainWindow
         Me.gbxLED.Controls.Add(Me.btnDemoR)
         Me.gbxLED.Controls.Add(Me.cmbLEDCH)
         Me.gbxLED.Controls.Add(Me.btnLightDemo)
-        Me.gbxLED.Location = New System.Drawing.Point(527, 414)
+        Me.gbxLED.Location = New System.Drawing.Point(527, 406)
         Me.gbxLED.Name = "gbxLED"
         Me.gbxLED.Size = New System.Drawing.Size(508, 330)
         Me.gbxLED.TabIndex = 32
         Me.gbxLED.TabStop = False
         Me.gbxLED.Text = "LED Manual Control"
+        '
+        'lblRGBFromROI
+        '
+        Me.lblRGBFromROI.AutoSize = True
+        Me.lblRGBFromROI.Location = New System.Drawing.Point(251, 166)
+        Me.lblRGBFromROI.Name = "lblRGBFromROI"
+        Me.lblRGBFromROI.Size = New System.Drawing.Size(53, 12)
+        Me.lblRGBFromROI.TabIndex = 34
+        Me.lblRGBFromROI.Text = "RGB,x,x,x"
         '
         'btnRGBValueSave
         '
@@ -633,20 +675,11 @@ Partial Class MainWindow
         Me.cmbLEDCH.Size = New System.Drawing.Size(100, 20)
         Me.cmbLEDCH.TabIndex = 0
         '
-        'lblRGBFromROI
-        '
-        Me.lblRGBFromROI.AutoSize = True
-        Me.lblRGBFromROI.Location = New System.Drawing.Point(251, 166)
-        Me.lblRGBFromROI.Name = "lblRGBFromROI"
-        Me.lblRGBFromROI.Size = New System.Drawing.Size(53, 12)
-        Me.lblRGBFromROI.TabIndex = 34
-        Me.lblRGBFromROI.Text = "RGB,x,x,x"
-        '
         'MainWindow
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1046, 763)
+        Me.ClientSize = New System.Drawing.Size(1046, 816)
         Me.Controls.Add(Me.gbxCollect)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox3)
@@ -724,4 +757,7 @@ Partial Class MainWindow
     Friend WithEvents btnDemoOFF As Button
     Friend WithEvents btnRGBValueSave As Button
     Friend WithEvents lblRGBFromROI As Label
+    Friend WithEvents cmbImageFormat As ComboBox
+    Friend WithEvents cbxColorOrGrayscale As CheckBox
+    Friend WithEvents Label8 As Label
 End Class

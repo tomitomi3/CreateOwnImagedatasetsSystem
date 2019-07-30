@@ -73,7 +73,13 @@ Public Class SaveImageUtili
         Return _saveFolderPath
     End Function
 
-    Public Sub Save(ByVal correctFolderName As String, tempBmp As Bitmap)
+    ''' <summary>
+    ''' 保存
+    ''' </summary>
+    ''' <param name="imgFormat"></param>
+    ''' <param name="correctFolderName"></param>
+    ''' <param name="tempBmp"></param>
+    Public Sub Save(ByVal imgFormat As MainWindow.EnumOutpuImageFormat, ByVal correctFolderName As String, tempBmp As Bitmap)
         'get recent file no
         Dim recentNo As ULong = 0
         If IsInclude(correctFolderName) = True Then
@@ -89,8 +95,18 @@ Public Class SaveImageUtili
         If System.IO.Directory.Exists(saveDirPath) = False Then
             System.IO.Directory.CreateDirectory(saveDirPath)
         End If
-        Dim savePath As String = String.Format("{0}\{1:D6}.bmp", saveDirPath, recentNo)
-        tempBmp.Save(savePath)
+
+        Dim savePath As String = String.Empty
+        If imgFormat = MainWindow.EnumOutpuImageFormat.PNG Then
+            savePath = String.Format("{0}\{1:D6}.png", saveDirPath, recentNo)
+            tempBmp.Save(savePath, Imaging.ImageFormat.Png)
+        ElseIf imgFormat = MainWindow.EnumOutpuImageFormat.JPEG Then
+            savePath = String.Format("{0}\{1:D6}.jpg", saveDirPath, recentNo)
+            tempBmp.Save(savePath, Imaging.ImageFormat.Jpeg)
+        Else
+            savePath = String.Format("{0}\{1:D6}.bmp", saveDirPath, recentNo)
+            tempBmp.Save(savePath, Imaging.ImageFormat.Bmp)
+        End If
         _correctVsNo(correctFolderName) += 1 'increment no
     End Sub
 

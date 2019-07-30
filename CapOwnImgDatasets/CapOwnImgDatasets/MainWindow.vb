@@ -49,6 +49,8 @@ Public Class MainWindow
 
     Private _rawClipExMat As Mat = Nothing
 
+    Private _isColor = True
+
     ''' <summary>
     ''' クリップ画像サイズ
     ''' </summary>
@@ -86,8 +88,19 @@ Public Class MainWindow
         Size2048x1536
     End Enum
 
+    ''' <summary>
+    ''' 出力画像フォーマット
+    ''' </summary>
+    Public Enum EnumOutpuImageFormat
+        BMP
+        PNG
+        JPEG
+    End Enum
+
     ''' <summary>To Send Arduino data</summary>
     Private _sendData As New List(Of Byte)
+
+    ''' <summary>serial port class</summary>
     Private oSerialPort As SerialPort = Nothing
 
 #End Region
@@ -211,8 +224,20 @@ Public Class MainWindow
                         'Update UI
                         Me.Invoke(
                             Sub()
+                                'update edit
                                 Me.pbxMainRaw.ImageIpl = clipEditMat
-                                Me.pbxProcessed.ImageIpl = Me._rawClipMat
+
+                                'update clip
+                                If Me._isColor = False Then
+                                    'Convert grayscale
+                                    Dim dst = New Mat()
+                                    Cv2.CvtColor(Me._rawClipMat, dst, ColorConversionCodes.BGRA2GRAY)
+                                    Cv2.CvtColor(dst, Me._rawClipMat, ColorConversionCodes.GRAY2BGR)
+                                    Me.pbxProcessed.ImageIpl = dst
+                                Else
+                                    Me.pbxProcessed.ImageIpl = Me._rawClipMat
+                                End If
+
                                 Me.lblRGBFromROI.Text = String.Format("RGB,{0},{1},{2}", r, g, b)
                             End Sub
                             )
@@ -488,8 +513,10 @@ Public Class MainWindow
         cmbImgSize.SelectedIndex = 1
 
         'save
+        Dim initCorrectName = "MyImageDataset"
         _saveImgUtil.Init(SaveImageUtili.GetExePath(), "MyImageDataset")
         Me.tbxFolderPath.Text = _saveImgUtil.GetSaveFolder()
+        Me.tbxCorrectName.Text = "INPUT CORRECT"
 
         'UART
         oSerialPort = New SerialPort()
@@ -521,6 +548,15 @@ Public Class MainWindow
         'UI
         Me.btnOpenClose.Enabled = False
         Me.cbxPort.Enabled = False
+
+        'Image format
+        cmbImageFormat.DropDownStyle = ComboBoxStyle.DropDownList
+        cmbImageFormat.Items.Clear()
+        For Each tempVal In [Enum].GetValues(GetType(EnumOutpuImageFormat))
+            Dim eName As String = [Enum].GetName(GetType(EnumOutpuImageFormat), tempVal)
+            cmbImageFormat.Items.Add(eName)
+        Next
+        cmbImageFormat.SelectedIndex = 1
 
         'debug
         'cmbCamID.SelectedIndex = 1
@@ -649,6 +685,10 @@ Public Class MainWindow
         End If
     End Sub
 
+    Private Sub cbxColorOrGrayscale_CheckedChanged(sender As Object, e As EventArgs) Handles cbxColorOrGrayscale.CheckedChanged
+        Me._isColor = Not Me.cbxColorOrGrayscale.Checked
+    End Sub
+
     ''' <summary>
     ''' open save folder
     ''' </summary>
@@ -664,10 +704,7 @@ Public Class MainWindow
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
-        SyncLock objlock
-            Dim strCorrect = tbxCorrectName.Text
-            _saveImgUtil.Save(strCorrect, Me.pbxProcessed.Image)
-        End SyncLock
+        SaveImage()
     End Sub
 
     ''' <summary>
@@ -677,20 +714,52 @@ Public Class MainWindow
     ''' <param name="e"></param>
     Private Sub btnSaveWithSettings_Click(sender As Object, e As EventArgs) Handles btnSaveWithSettings.Click
         Dim ip = New ImageProcesser(Me._rawClipExMat)
+
+        'Settings
         If Me.cbxRotation.Checked Then
+            ip.IsRotation = True
             ip.RotationStep = Integer.Parse(tbxRotation.Text)
         End If
         If Me.cbxSlide.Checked Then
-            ip.Slide = Integer.Parse(tbxSlide.Text)
-            ip.SlideDiff = CLIP_SIZE_EX - CLIP_SIZE
+            ip.IsSlide = True
+            ip.SlideDiff = Integer.Parse(tbxSlide.Text)
+        End If
+        If Me.cbxFlip.Checked Then
+            ip.IsFlip = True
+        End If
+        If Me.cbxColorOrGrayscale.Checked Then
+            ip.IsColor = False
         End If
 
-        SyncLock objlock
-            'flip x軸
-            'rotation 18
+        SaveImage()
+    End Sub
 
-            _saveImgUtil.Save(tbxCorrectName.Text, Me.pbxProcessed.Image)
-        End SyncLock
+    Private Sub SaveImage()
+        Dim imgSize As Integer = CInt(EnumOutpuImageSize.ImageSize128x128)
+        For Each tempVal In [Enum].GetValues(GetType(EnumOutpuImageSize))
+            Dim eName As String = [Enum].GetName(GetType(EnumOutpuImageSize), tempVal)
+            If Me.cmbImgSize.SelectedItem.ToString() = eName Then
+                'ip.ImageSize = CInt(tempVal)
+                imgSize = CInt(tempVal)
+                Exit For
+            End If
+        Next
+
+        '縮小
+        Dim saveMat As New Mat()
+        Cv2.Resize(Me._rawClipMat, saveMat, New OpenCvSharp.Size(imgSize, imgSize), interpolation:=InterpolationFlags.Cubic)
+
+        'Convert grayscale
+        If Me._isColor = False Then
+            Dim tempMat = New Mat()
+            Cv2.CvtColor(saveMat, tempMat, ColorConversionCodes.BGRA2GRAY)
+            saveMat = tempMat
+        End If
+
+        '保存
+        Dim tempBmpClass = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
+        Dim imgFormat = CType(Me.cmbImageFormat.SelectedIndex, EnumOutpuImageFormat)
+        _saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, tempBmpClass)
     End Sub
 
     Private Const NUM_OF_LED As Integer = 5
@@ -847,40 +916,4 @@ Public Class MainWindow
         End SyncLock
     End Sub
 #End Region
-End Class
-
-Public Class ImageProcesser
-    Private clipExMat As Mat
-
-    Public Property RotationStep As Integer = 0
-    Public Property Slide As Integer = 0
-    Public Property SlideDiff As Integer = 0
-
-    Public Sub New()
-
-    End Sub
-
-    Public Sub New(clipExMat As Mat)
-        Me.clipExMat = clipExMat
-    End Sub
-
-    Public Function GetRotationMats() As Mat
-
-    End Function
-
-    Public Function GetMat() As Mat
-        ''画像処理
-        'Using dst As New Mat(clipExMat.Width, clipExMat.Height, MatType.CV_8UC3)
-        '    Dim stepAngle = Integer.Parse(Me.tbxRotation.Text)
-
-        '    Dim numAngle = CInt(360 / stepAngle)
-
-        '    Dim center As New Point2f(clipExMat.Width / 2.0, clipExMat.Height / 2.0)
-        '    Dim rotationMat = Cv2.GetRotationMatrix2D(center, stepAngle, 1.0)
-        '    Cv2.WarpAffine(clipExMat, dst, rotationMat, clipExMat.Size())
-        '    Dim clipRect = New Rect(New Point(exHalf, exHalf), New Size(CLIP_SIZE, CLIP_SIZE))
-        '    Dim dst2 = dst(clipRect)
-        '    Me.pbxProcessed.ImageIpl = dst2
-        'End Using
-    End Function
 End Class
