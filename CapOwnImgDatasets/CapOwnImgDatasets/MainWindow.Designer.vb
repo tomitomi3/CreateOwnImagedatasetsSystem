@@ -68,8 +68,6 @@ Partial Class MainWindow
         Me.Label3 = New System.Windows.Forms.Label()
         Me.tbxRGBDemo = New System.Windows.Forms.TextBox()
         Me.btnSetRGB = New System.Windows.Forms.Button()
-        Me.btnSingleLED = New System.Windows.Forms.Button()
-        Me.tbxChRGB = New System.Windows.Forms.TextBox()
         Me.gbxLED = New System.Windows.Forms.GroupBox()
         Me.lblRGBFromROI = New System.Windows.Forms.Label()
         Me.btnRGBValueSave = New System.Windows.Forms.Button()
@@ -81,6 +79,8 @@ Partial Class MainWindow
         Me.lblG = New System.Windows.Forms.Label()
         Me.lblR = New System.Windows.Forms.Label()
         Me.cmbLEDCH = New System.Windows.Forms.ComboBox()
+        Me.trbBrightness = New System.Windows.Forms.TrackBar()
+        Me.lblBrightness = New System.Windows.Forms.Label()
         CType(Me.pbxMainRaw, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.pbxProcessed, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox2.SuspendLayout()
@@ -90,6 +90,7 @@ Partial Class MainWindow
         CType(Me.trbR, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.trbG, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.trbB, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.trbBrightness, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'cmbCamID
@@ -540,32 +541,15 @@ Partial Class MainWindow
         Me.btnSetRGB.Text = "Set"
         Me.btnSetRGB.UseVisualStyleBackColor = True
         '
-        'btnSingleLED
-        '
-        Me.btnSingleLED.Location = New System.Drawing.Point(121, 63)
-        Me.btnSingleLED.Name = "btnSingleLED"
-        Me.btnSingleLED.Size = New System.Drawing.Size(75, 23)
-        Me.btnSingleLED.TabIndex = 30
-        Me.btnSingleLED.Text = "SingleLED"
-        Me.btnSingleLED.UseVisualStyleBackColor = True
-        '
-        'tbxChRGB
-        '
-        Me.tbxChRGB.Location = New System.Drawing.Point(15, 65)
-        Me.tbxChRGB.Name = "tbxChRGB"
-        Me.tbxChRGB.Size = New System.Drawing.Size(100, 19)
-        Me.tbxChRGB.TabIndex = 31
-        Me.tbxChRGB.Text = "4,255,255,255"
-        '
         'gbxLED
         '
+        Me.gbxLED.Controls.Add(Me.lblBrightness)
+        Me.gbxLED.Controls.Add(Me.trbBrightness)
         Me.gbxLED.Controls.Add(Me.lblRGBFromROI)
         Me.gbxLED.Controls.Add(Me.btnRGBValueSave)
         Me.gbxLED.Controls.Add(Me.btnDemoOFF)
         Me.gbxLED.Controls.Add(Me.tbxRGBDemo)
-        Me.gbxLED.Controls.Add(Me.tbxChRGB)
         Me.gbxLED.Controls.Add(Me.trbR)
-        Me.gbxLED.Controls.Add(Me.btnSingleLED)
         Me.gbxLED.Controls.Add(Me.trbG)
         Me.gbxLED.Controls.Add(Me.btnSetRGB)
         Me.gbxLED.Controls.Add(Me.trbB)
@@ -588,7 +572,7 @@ Partial Class MainWindow
         'lblRGBFromROI
         '
         Me.lblRGBFromROI.AutoSize = True
-        Me.lblRGBFromROI.Location = New System.Drawing.Point(251, 166)
+        Me.lblRGBFromROI.Location = New System.Drawing.Point(256, 176)
         Me.lblRGBFromROI.Name = "lblRGBFromROI"
         Me.lblRGBFromROI.Size = New System.Drawing.Size(53, 12)
         Me.lblRGBFromROI.TabIndex = 34
@@ -596,7 +580,7 @@ Partial Class MainWindow
         '
         'btnRGBValueSave
         '
-        Me.btnRGBValueSave.Location = New System.Drawing.Point(253, 132)
+        Me.btnRGBValueSave.Location = New System.Drawing.Point(258, 142)
         Me.btnRGBValueSave.Name = "btnRGBValueSave"
         Me.btnRGBValueSave.Size = New System.Drawing.Size(114, 23)
         Me.btnRGBValueSave.TabIndex = 33
@@ -614,7 +598,7 @@ Partial Class MainWindow
         '
         'trbR
         '
-        Me.trbR.Location = New System.Drawing.Point(15, 133)
+        Me.trbR.Location = New System.Drawing.Point(20, 143)
         Me.trbR.Maximum = 255
         Me.trbR.Minimum = 1
         Me.trbR.Name = "trbR"
@@ -624,7 +608,7 @@ Partial Class MainWindow
         '
         'trbG
         '
-        Me.trbG.Location = New System.Drawing.Point(15, 184)
+        Me.trbG.Location = New System.Drawing.Point(20, 194)
         Me.trbG.Maximum = 255
         Me.trbG.Minimum = 1
         Me.trbG.Name = "trbG"
@@ -634,7 +618,7 @@ Partial Class MainWindow
         '
         'trbB
         '
-        Me.trbB.Location = New System.Drawing.Point(15, 235)
+        Me.trbB.Location = New System.Drawing.Point(20, 245)
         Me.trbB.Maximum = 255
         Me.trbB.Minimum = 1
         Me.trbB.Name = "trbB"
@@ -645,7 +629,7 @@ Partial Class MainWindow
         'lblB
         '
         Me.lblB.AutoSize = True
-        Me.lblB.Location = New System.Drawing.Point(226, 239)
+        Me.lblB.Location = New System.Drawing.Point(231, 249)
         Me.lblB.Name = "lblB"
         Me.lblB.Size = New System.Drawing.Size(11, 12)
         Me.lblB.TabIndex = 4
@@ -654,7 +638,7 @@ Partial Class MainWindow
         'lblG
         '
         Me.lblG.AutoSize = True
-        Me.lblG.Location = New System.Drawing.Point(226, 188)
+        Me.lblG.Location = New System.Drawing.Point(231, 198)
         Me.lblG.Name = "lblG"
         Me.lblG.Size = New System.Drawing.Size(11, 12)
         Me.lblG.TabIndex = 3
@@ -663,7 +647,7 @@ Partial Class MainWindow
         'lblR
         '
         Me.lblR.AutoSize = True
-        Me.lblR.Location = New System.Drawing.Point(226, 137)
+        Me.lblR.Location = New System.Drawing.Point(231, 147)
         Me.lblR.Name = "lblR"
         Me.lblR.Size = New System.Drawing.Size(11, 12)
         Me.lblR.TabIndex = 2
@@ -672,10 +656,29 @@ Partial Class MainWindow
         'cmbLEDCH
         '
         Me.cmbLEDCH.FormattingEnabled = True
-        Me.cmbLEDCH.Location = New System.Drawing.Point(15, 104)
+        Me.cmbLEDCH.Location = New System.Drawing.Point(15, 59)
         Me.cmbLEDCH.Name = "cmbLEDCH"
         Me.cmbLEDCH.Size = New System.Drawing.Size(100, 20)
         Me.cmbLEDCH.TabIndex = 0
+        '
+        'trbBrightness
+        '
+        Me.trbBrightness.Location = New System.Drawing.Point(20, 92)
+        Me.trbBrightness.Maximum = 255
+        Me.trbBrightness.Minimum = 1
+        Me.trbBrightness.Name = "trbBrightness"
+        Me.trbBrightness.Size = New System.Drawing.Size(205, 45)
+        Me.trbBrightness.TabIndex = 35
+        Me.trbBrightness.Value = 1
+        '
+        'lblBrightness
+        '
+        Me.lblBrightness.AutoSize = True
+        Me.lblBrightness.Location = New System.Drawing.Point(231, 104)
+        Me.lblBrightness.Name = "lblBrightness"
+        Me.lblBrightness.Size = New System.Drawing.Size(11, 12)
+        Me.lblBrightness.TabIndex = 36
+        Me.lblBrightness.Text = "1"
         '
         'MainWindow
         '
@@ -699,6 +702,7 @@ Partial Class MainWindow
         CType(Me.trbR, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.trbG, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.trbB, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.trbBrightness, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
@@ -746,8 +750,6 @@ Partial Class MainWindow
     Friend WithEvents btnSetRGB As Button
     Friend WithEvents cmbCamImgSize As ComboBox
     Friend WithEvents Label3 As Label
-    Friend WithEvents btnSingleLED As Button
-    Friend WithEvents tbxChRGB As TextBox
     Friend WithEvents gbxLED As GroupBox
     Friend WithEvents cmbLEDCH As ComboBox
     Friend WithEvents trbG As TrackBar
@@ -762,4 +764,6 @@ Partial Class MainWindow
     Friend WithEvents cmbImageFormat As ComboBox
     Friend WithEvents cbxColorOrGrayscale As CheckBox
     Friend WithEvents Label8 As Label
+    Friend WithEvents trbBrightness As TrackBar
+    Friend WithEvents lblBrightness As Label
 End Class

@@ -238,6 +238,16 @@ Public Class MainWindow
                                     Me.pbxProcessed.ImageIpl = Me._rawClipMat
                                 End If
 
+                                'adjust
+                                If Me.pbxProcessed.ImageIpl.Height > Me.pbxProcessed.Height Then
+                                    Dim ratio = Me.pbxProcessed.Height / Me.pbxProcessed.ImageIpl.Height
+                                    Dim w = CInt(Me.pbxProcessed.ImageIpl.Height * ratio - 0.5)
+                                    Using tempMat As New Mat()
+                                        Cv2.Resize(Me.pbxProcessed.ImageIpl, tempMat, New OpenCvSharp.Size(w, w), interpolation:=InterpolationFlags.Cubic)
+                                        Me.pbxProcessed.ImageIpl = tempMat
+                                    End Using
+                                End If
+
                                 Me.lblRGBFromROI.Text = String.Format("RGB,{0},{1},{2}", r, g, b)
                             End Sub
                             )
@@ -699,75 +709,71 @@ Public Class MainWindow
     End Sub
 
     ''' <summary>
-    ''' save(one shot)
-    ''' </summary>
-    ''' <param name="sender"></param>
-    ''' <param name="e"></param>
-    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
-        SaveImage()
-    End Sub
-
-    ''' <summary>
     ''' save with various settings
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
     Private Sub btnSaveWithSettings_Click(sender As Object, e As EventArgs) Handles btnSaveWithSettings.Click
-        Dim ip = New ImageProcesser(Me._rawClipExMat)
+        If Me.cbxLightCtrl.Checked = True Then
+
+        End If
+
+
+
 
         'Settings
+        Dim ip = New ImageProcesser(Me._rawClipExMat)
+
         If Me.cbxRotation.Checked Then
             ip.IsRotation = True
             ip.RotationStep = Integer.Parse(tbxRotation.Text)
         End If
+
         If Me.cbxSlide.Checked Then
             ip.IsSlide = True
             ip.SlideDiff = Integer.Parse(tbxSlide.Text)
         End If
+
         If Me.cbxFlip.Checked Then
             ip.IsFlip = True
         End If
+
         If Me.cbxColorOrGrayscale.Checked Then
             ip.IsColor = False
         End If
 
-        SaveImage()
-    End Sub
-
-    Private Sub SaveImage()
-        If Me._rawClipMat Is Nothing OrElse Me._rawClipExMat Is Nothing Then
-            Return
-        End If
-
-        Dim imgSize As Integer = CInt(EnumOutpuImageSize.ImageSize128x128)
         For Each tempVal In [Enum].GetValues(GetType(EnumOutpuImageSize))
             Dim eName As String = [Enum].GetName(GetType(EnumOutpuImageSize), tempVal)
             If Me.cmbImgSize.SelectedItem.ToString() = eName Then
-                'ip.ImageSize = CInt(tempVal)
-                imgSize = CInt(tempVal)
+                ip.ImageSize = CInt(tempVal)
                 Exit For
             End If
         Next
 
+        '無1 白4 上RGB3 右RGB3 下RGB3 左RGB3 17
+        'Rotation 20degree 359/30 11
+        'Slideはランダム移動 10
+        'Flip 上下 2
+
         '縮小
-        Dim saveMat As New Mat()
-        Cv2.Resize(Me._rawClipMat, saveMat, New OpenCvSharp.Size(imgSize, imgSize), interpolation:=InterpolationFlags.Cubic)
+        'Dim saveMat As New Mat()
+        'Cv2.Resize(Me._rawClipMat, saveMat, New OpenCvSharp.Size(imgSize, imgSize), interpolation:=InterpolationFlags.Cubic)
 
         'Convert grayscale
-        If Me._isColor = False Then
-            Dim tempMat = New Mat()
-            Cv2.CvtColor(saveMat, tempMat, ColorConversionCodes.BGRA2GRAY)
-            saveMat = tempMat
-        End If
+        'If Me._isColor = False Then
+        '    Dim tempMat = New Mat()
+        '    Cv2.CvtColor(saveMat, tempMat, ColorConversionCodes.BGRA2GRAY)
+        '    saveMat = tempMat
+        'End If
 
         '保存
-        Dim tempBmpClass = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
-        Dim imgFormat = CType(Me.cmbImageFormat.SelectedIndex, EnumOutpuImageFormat)
-        _saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, tempBmpClass)
+        'Dim tempBmpClass = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
+        'Dim imgFormat = CType(Me.cmbImageFormat.SelectedIndex, EnumOutpuImageFormat)
+        '_saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, tempBmpClass)
     End Sub
 
     Private Const NUM_OF_LED As Integer = 5
-    Private Const LightBrightness As Byte = 255
+    Private _LightBrightness As Byte = 255
     Private Const LightStep As Byte = 32
     Private Const SIZE_CH_COLOR As Integer = 4
     Private Const IDX_BRIGHTNESS As Integer = 0
@@ -814,7 +820,7 @@ Public Class MainWindow
         '             0   R  G  B  0   R  G  B
         '[Brightness][CH][R][G][B][CH][R][G][B]
         InitSendData()
-        _sendData(IDX_BRIGHTNESS) = LightBrightness
+        _sendData(IDX_BRIGHTNESS) = _LightBrightness
         For Each c In ret
             For i As Integer = 0 To NUM_OF_LED - 1
                 Dim idx = IDX_CH0 + SIZE_CH_COLOR * i
@@ -852,7 +858,7 @@ Public Class MainWindow
         End If
 
         InitSendData()
-        _sendData(IDX_BRIGHTNESS) = LightBrightness
+        _sendData(IDX_BRIGHTNESS) = _LightBrightness
         For i As Integer = 0 To NUM_OF_LED - 1
             Dim idx = IDX_CH0 + SIZE_CH_COLOR * i
             _sendData(idx) = i
@@ -883,41 +889,43 @@ Public Class MainWindow
         Me.tbxRGBDemo.Text = "255,255,255"
     End Sub
 
-    Private Sub btnSingleLED_Click(sender As Object, e As EventArgs) Handles btnSingleLED.Click
-        'byte
-        Dim split = Me.tbxChRGB.Text.Split(",")
-        If split.Count <> 4 Then
-            Return
-        End If
-        Me.SendLightLED(LightBrightness, Byte.Parse(split(0)), Byte.Parse(split(1)), Byte.Parse(split(2)), Byte.Parse(split(3)))
-        SendArduinoWithCheckSum()
+    ''' <summary>
+    ''' トラックバー 輝度
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub trbBrightness_Scroll(sender As Object, e As EventArgs) Handles trbBrightness.Scroll
+        Me._LightBrightness = Integer.Parse(Me.trbBrightness.Value)
+        Me.lblBrightness.Text = trbBrightness.Value.ToString()
+        Me.SendLightLED(_LightBrightness, Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
+        Me.SendArduinoWithCheckSum()
     End Sub
 
     Private Sub tbrR_Scroll(sender As Object, e As EventArgs) Handles trbR.Scroll
         Me.lblR.Text = trbR.Value.ToString()
-        Me.SendLightLED(LightBrightness, Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
+        Me.SendLightLED(_LightBrightness, Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
         Me.SendArduinoWithCheckSum()
     End Sub
 
     Private Sub tbrG_Scroll(sender As Object, e As EventArgs) Handles trbG.Scroll
         Me.lblG.Text = trbG.Value.ToString()
-        Me.SendLightLED(LightBrightness, Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
+        Me.SendLightLED(_LightBrightness, Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
         Me.SendArduinoWithCheckSum()
     End Sub
 
     Private Sub tbgB_Scroll(sender As Object, e As EventArgs) Handles trbB.Scroll
         Me.lblB.Text = trbB.Value.ToString()
-        Me.SendLightLED(LightBrightness, Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
+        Me.SendLightLED(_LightBrightness, Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
         Me.SendArduinoWithCheckSum()
     End Sub
 
     Private Sub btnRGBValueSave_Click(sender As Object, e As EventArgs) Handles btnRGBValueSave.Click
-        SyncLock objlock
-            Dim temp = lblRGBFromROI.Text.Split(",")
-            Using writer As StreamWriter = New StreamWriter("RGBVALUE_DEBUG.txt", append:=True, encoding:=Encoding.GetEncoding("Shift_JIS"))
-                writer.WriteLine("{0},{1},{2},{3},{4},{5}", trbR.Value, trbG.Value, trbB.Value, temp(1), temp(2), temp(3))
-            End Using
-        End SyncLock
+        Dim temp = lblRGBFromROI.Text.Split(",")
+        Using writer As StreamWriter = New StreamWriter("RGBVALUE_DEBUG.txt", append:=True, encoding:=Encoding.GetEncoding("Shift_JIS"))
+            writer.WriteLine("{0},{1},{2},{3},{4},{5}", trbR.Value, trbG.Value, trbB.Value, temp(1), temp(2), temp(3))
+        End Using
     End Sub
+
+
 #End Region
 End Class
