@@ -706,7 +706,7 @@ Public Class MainWindow
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
-    Private Sub btnSaveWithSettings_Click(sender As Object, e As EventArgs) Handles btnSaveWithSettings.Click
+    Private Async Sub btnSaveWithSettings_Click(sender As Object, e As EventArgs) Handles btnSaveWithSettings.Click
         If Me._cap Is Nothing Then
             Return
         End If
@@ -748,47 +748,51 @@ Public Class MainWindow
         'save
         Dim imgFormat = CType(Me.cmbImageFormat.SelectedIndex, EnumOutpuImageFormat)
 
-        Dim sleepTime = Me._elapsedTime * 1.5
-        If Me.cbxAveraging.Checked = True Then
-            sleepTime = sleepTime * Integer.Parse(Me.tbxAverage.Text) + 300
-        End If
         If Me.cbxLightCtrl.Checked = True Then
             'Exist LED Light control
-            Dim patterns = GenP()
-            For Each p In patterns
-                'LED pattern
-                _sendData = p.ToList()
-                SendArduinoWithCheckSum()
+            Dim sleepTime = Me._elapsedTime * 1.5
+            If Me.cbxAveraging.Checked = True Then
+                sleepTime = sleepTime * Integer.Parse(Me.tbxAverage.Text) + 300
+            End If
+            Await Task.Run(Sub()
+                               Dim patterns = GenP()
+                               For Each p In patterns
+                                   'LED pattern
+                                   _sendData = p.ToList()
+                                   SendArduinoWithCheckSum()
 
-                'sleep
-                System.Threading.Thread.Sleep(2000)
+                                   'sleep
+                                   System.Threading.Thread.Sleep(sleepTime)
 
-                SyncLock objlock
-                    ip.InputMat = Me._rawClipExMat.Clone()
-                End SyncLock
-                Dim saveMats = ip.GetMats()
-                For Each saveMat In saveMats
-                    Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
-                    saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
-                Next
+                                   SyncLock objlock
+                                       ip.InputMat = Me._rawClipExMat.Clone()
+                                   End SyncLock
+                                   Dim saveMats = ip.GetMats()
+                                   For Each saveMat In saveMats
+                                       Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
+                                       saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
+                                   Next
 
-                '砂時計防止
-                Application.DoEvents()
-            Next
+                                   '砂時計防止
+                                   Application.DoEvents()
+                               Next
+                           End Sub)
 
             'LED OFF
             _sendData = Me.GetInitSendData().ToList()
             SendArduinoWithCheckSum()
         Else
             'No LED control
-            SyncLock objlock
-                ip.InputMat = Me._rawClipExMat.Clone()
-            End SyncLock
-            Dim saveMats = ip.GetMats()
-            For Each saveMat In saveMats
-                Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
-                saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
-            Next
+            Await Task.Run(Sub()
+                               SyncLock objlock
+                                   ip.InputMat = Me._rawClipExMat.Clone()
+                               End SyncLock
+                               Dim saveMats = ip.GetMats()
+                               For Each saveMat In saveMats
+                                   Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
+                                   saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
+                               Next
+                           End Sub)
         End If
     End Sub
 
@@ -818,9 +822,9 @@ Public Class MainWindow
         'table
         With Nothing
             Dim tempBytes = GetInitSendData()
-            tempBytes(IDX_CH4 + 1) = 128
+            tempBytes(IDX_CH4 + 1) = 64
             tempBytes(IDX_CH4 + 2) = 128
-            tempBytes(IDX_CH4 + 3) = 128
+            tempBytes(IDX_CH4 + 3) = 96
             colorPattern.Add(tempBytes)
         End With
 
@@ -833,6 +837,9 @@ Public Class MainWindow
             tempBytes(IDX_CH1 + 1) = 128
             tempBytes(IDX_CH1 + 2) = 0
             tempBytes(IDX_CH1 + 3) = 0
+            tempBytes(IDX_CH4 + 1) = 64
+            tempBytes(IDX_CH4 + 2) = 128
+            tempBytes(IDX_CH4 + 3) = 96
             colorPattern.Add(tempBytes)
         End With
 
@@ -844,6 +851,9 @@ Public Class MainWindow
             tempBytes(IDX_CH1 + 1) = 0
             tempBytes(IDX_CH1 + 2) = 128
             tempBytes(IDX_CH1 + 3) = 0
+            tempBytes(IDX_CH4 + 1) = 64
+            tempBytes(IDX_CH4 + 2) = 128
+            tempBytes(IDX_CH4 + 3) = 96
             colorPattern.Add(tempBytes)
         End With
 
@@ -855,6 +865,9 @@ Public Class MainWindow
             tempBytes(IDX_CH1 + 1) = 0
             tempBytes(IDX_CH1 + 2) = 0
             tempBytes(IDX_CH1 + 3) = 128
+            tempBytes(IDX_CH4 + 1) = 64
+            tempBytes(IDX_CH4 + 2) = 128
+            tempBytes(IDX_CH4 + 3) = 96
             colorPattern.Add(tempBytes)
         End With
 
