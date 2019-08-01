@@ -7,49 +7,6 @@ Imports OpenCvSharp
 
 Public Class MainWindow
 #Region "Member"
-    ''' <summary>コンソール</summary>
-    Declare Function AllocConsole Lib "kernel32" () As Int32
-
-    ''' <summary>video cap</summary>
-    Private _cap As VideoCapture = Nothing
-
-    ''' <summary>thread video cap</summary>
-    Private _thread As System.Threading.Thread = Nothing
-
-    ''' <summary>スレッド同期(CS)</summary>
-    Private objlock = New Object()
-
-    ''' <summary>クリック位置</summary>
-    Private _clickedPos As New Point(0, 0)
-
-    ''' <summary>画像保存Utility</summary>
-    Private _saveImgUtil As New SaveImageUtili()
-
-    ''' <summary>画像保存</summary>
-    Private _ip As New ImageProcesser()
-
-    ''' <summary>Raw キャプチャ画像幅</summary>
-    Private _rawWidth As Integer = 0
-
-    ''' <summary>Raw キャプチャ画像高さ</summary>
-    Private _rawHeight As Integer = 0
-
-    ''' <summary>拡大率(diplay to rawimg)</summary>
-    Private _zoomRatio As Double = 0.0
-
-    Private _sumMat As New List(Of Mat)
-
-    Private _avgCount As Byte = 0
-
-    Private CLIP_SIZE_EX As Integer = 0
-
-    Private CLIP_SIZE As Integer = 0
-
-    Private _rawClipMat As Mat = Nothing
-
-    Private _rawClipExMat As Mat = Nothing
-
-    Private _isColor = True
 
     ''' <summary>
     ''' クリップ画像サイズ
@@ -97,6 +54,49 @@ Public Class MainWindow
         JPEG
     End Enum
 
+    ''' <summary>コンソール</summary>
+    Declare Function AllocConsole Lib "kernel32" () As Int32
+
+    ''' <summary>video cap</summary>
+    Private _cap As VideoCapture = Nothing
+
+    ''' <summary>thread video cap</summary>
+    Private _thread As System.Threading.Thread = Nothing
+
+    ''' <summary>スレッド同期(CS)</summary>
+    Private objlock = New Object()
+
+    ''' <summary>クリック位置</summary>
+    Private _clickedPos As New Point(0, 0)
+
+    ''' <summary>画像保存</summary>
+    Private _ip As New ImageProcesser()
+
+    ''' <summary>Raw キャプチャ画像幅</summary>
+    Private _rawWidth As Integer = 0
+
+    ''' <summary>Raw キャプチャ画像高さ</summary>
+    Private _rawHeight As Integer = 0
+
+    ''' <summary>拡大率(diplay to rawimg)</summary>
+    Private _zoomRatio As Double = 0.0
+
+    Private _sumMat As New List(Of Mat)
+
+    Private _avgCount As Byte = 0
+
+    Private _clipSizeEx As Integer = 0
+
+    Private _clipSize As Integer = 0
+
+    Private _rawClipMat As Mat = Nothing
+
+    Private _rawClipExMat As Mat = Nothing
+
+    Private _isColor = True
+
+    ''' <summary>elapsed time per 1 capture</summary>
+    Private _elapsedTime As Double = 0.0
     ''' <summary>To Send Arduino data</summary>
     Private _sendData As New List(Of Byte)
 
@@ -190,7 +190,6 @@ Public Class MainWindow
     ''' </summary>
     Private Sub Worker()
         Dim sw As New Stopwatch()
-        Dim rnd As New System.Random()
         While (True)
             sw.Restart()
             Try
@@ -207,51 +206,51 @@ Public Class MainWindow
                     End If
 
                     'update
+                    'Get image
+                    Dim clipEditMat As Mat = Nothing
                     SyncLock objlock
-                        'Get image
-                        Dim clipEditMat As Mat = Nothing
                         Me.GetClipImageFromCameraImage(mat, clipEditMat, Me._rawClipMat, Me._rawClipExMat)
-
-                        'Debug get RGB Value from ROI
-                        Dim g_width As Integer = Me._rawClipMat.Width / 2
-                        Dim g_height As Integer = Me._rawClipMat.Height / 2
-                        Dim g_data = Me._rawClipMat(g_width, g_width + 1, g_height, g_height + 1)
-                        Dim prt = g_data.Data() 'B G Rの並び
-                        Dim b = Marshal.ReadByte(prt)
-                        Dim g = Marshal.ReadByte(prt + 1)
-                        Dim r = Marshal.ReadByte(prt + 2)
-
-                        'Update UI
-                        Me.Invoke(
-                            Sub()
-                                'update edit
-                                Me.pbxMainRaw.ImageIpl = clipEditMat
-
-                                'update clip
-                                If Me._isColor = False Then
-                                    'Convert grayscale
-                                    Dim dst = New Mat()
-                                    Cv2.CvtColor(Me._rawClipMat, dst, ColorConversionCodes.BGRA2GRAY)
-                                    Cv2.CvtColor(dst, Me._rawClipMat, ColorConversionCodes.GRAY2BGR)
-                                    Me.pbxProcessed.ImageIpl = dst
-                                Else
-                                    Me.pbxProcessed.ImageIpl = Me._rawClipMat
-                                End If
-
-                                'adjust
-                                If Me.pbxProcessed.ImageIpl.Height > Me.pbxProcessed.Height Then
-                                    Dim ratio = Me.pbxProcessed.Height / Me.pbxProcessed.ImageIpl.Height
-                                    Dim w = CInt(Me.pbxProcessed.ImageIpl.Height * ratio - 0.5)
-                                    Using tempMat As New Mat()
-                                        Cv2.Resize(Me.pbxProcessed.ImageIpl, tempMat, New OpenCvSharp.Size(w, w), interpolation:=InterpolationFlags.Cubic)
-                                        Me.pbxProcessed.ImageIpl = tempMat
-                                    End Using
-                                End If
-
-                                Me.lblRGBFromROI.Text = String.Format("RGB,{0},{1},{2}", r, g, b)
-                            End Sub
-                            )
                     End SyncLock
+
+                    'Debug get RGB Value from ROI
+                    Dim g_width As Integer = Me._rawClipMat.Width / 2
+                    Dim g_height As Integer = Me._rawClipMat.Height / 2
+                    Dim g_data = Me._rawClipMat(g_width, g_width + 1, g_height, g_height + 1)
+                    Dim prt = g_data.Data() 'B G Rの並び
+                    Dim b = Marshal.ReadByte(prt)
+                    Dim g = Marshal.ReadByte(prt + 1)
+                    Dim r = Marshal.ReadByte(prt + 2)
+
+                    'Update UI
+                    Me.Invoke(
+                        Sub()
+                            'update edit
+                            Me.pbxMainRaw.ImageIpl = clipEditMat
+
+                            'update clip
+                            If Me._isColor = False Then
+                                'Convert grayscale
+                                Dim dst = New Mat()
+                                Cv2.CvtColor(Me._rawClipMat, dst, ColorConversionCodes.BGRA2GRAY)
+                                Cv2.CvtColor(dst, Me._rawClipMat, ColorConversionCodes.GRAY2BGR)
+                                Me.pbxProcessed.ImageIpl = dst
+                            Else
+                                Me.pbxProcessed.ImageIpl = Me._rawClipMat
+                            End If
+
+                            'adjust
+                            If Me.pbxProcessed.ImageIpl.Height > Me.pbxProcessed.Height Then
+                                Dim ratio = Me.pbxProcessed.Height / Me.pbxProcessed.ImageIpl.Height
+                                Dim w = CInt(Me.pbxProcessed.ImageIpl.Height * ratio - 0.5)
+                                Using tempMat As New Mat()
+                                    Cv2.Resize(Me.pbxProcessed.ImageIpl, tempMat, New OpenCvSharp.Size(w, w), interpolation:=InterpolationFlags.Cubic)
+                                    Me.pbxProcessed.ImageIpl = tempMat
+                                End Using
+                            End If
+
+                            Me.lblRGBFromROI.Text = String.Format("RGB,{0},{1},{2}", r, g, b)
+                        End Sub
+                        )
                 End Using
             Catch ex As Threading.ThreadAbortException
                 Console.WriteLine("throw ThreadAbortException")
@@ -269,7 +268,8 @@ Public Class MainWindow
                 End If
             End Try
             sw.Stop()
-            'Console.WriteLine("{0}[fps]", 1000.0 / sw.ElapsedMilliseconds)
+            Me._elapsedTime = sw.ElapsedMilliseconds
+            Console.WriteLine("{0}[fps]", 1000.0 / sw.ElapsedMilliseconds)
         End While
 
         'done
@@ -287,9 +287,9 @@ Public Class MainWindow
         'clip pos
         Dim dispW = rawCameraMat.Width / _zoomRatio
         Dim dispH = rawCameraMat.Height / _zoomRatio
-        Dim rawDiffHalf = (CLIP_SIZE_EX - CLIP_SIZE) / 2.0
-        Dim dispDiffHalf = (CLIP_SIZE_EX - CLIP_SIZE) / 2.0 / _zoomRatio
-        Dim dispClipHalf = CLIP_SIZE_EX / 2.0 / _zoomRatio
+        Dim rawDiffHalf = (_clipSizeEx - _clipSize) / 2.0
+        Dim dispDiffHalf = (_clipSizeEx - _clipSize) / 2.0 / _zoomRatio
+        Dim dispClipHalf = _clipSizeEx / 2.0 / _zoomRatio
 
         '縮小して表示画像を表示
         Using dispEditClipMat As New Mat(dispW, dispH, MatType.CV_8UC3)
@@ -298,20 +298,20 @@ Public Class MainWindow
 
             'CLIP_SIZE_EX枠
             Dim rectSizeDisp = Nothing
-            rectSizeDisp = New Rect(Me._clickedPos, New Size(CLIP_SIZE_EX / _zoomRatio, CLIP_SIZE_EX / _zoomRatio))
+            rectSizeDisp = New Rect(Me._clickedPos, New Size(_clipSizeEx / _zoomRatio, _clipSizeEx / _zoomRatio))
             Cv2.Rectangle(dispEditClipMat, rectSizeDisp, New Scalar(0, 0, 255), 1)
 
             'CLIP_SIZE枠
-            rectSizeDisp = New Rect(New Point(Me._clickedPos.X + dispDiffHalf, Me._clickedPos.Y + dispDiffHalf), New Size(CLIP_SIZE / _zoomRatio, CLIP_SIZE / _zoomRatio))
+            rectSizeDisp = New Rect(New Point(Me._clickedPos.X + dispDiffHalf, Me._clickedPos.Y + dispDiffHalf), New Size(_clipSize / _zoomRatio, _clipSize / _zoomRatio))
             Cv2.Rectangle(dispEditClipMat, rectSizeDisp, New Scalar(0, 255, 0), 1)
 
             'cross hair
             Dim ptCrossHairX1 = New Point(dispClipHalf + Me._clickedPos.X - 5, dispClipHalf + Me._clickedPos.Y)
             Dim ptCrossHairX2 = New Point(dispClipHalf + Me._clickedPos.X + 5, dispClipHalf + Me._clickedPos.Y)
-            Cv2.Line(dispEditClipMat, ptCrossHairX1, ptCrossHairX2, New Scalar(0, 0, 255), 1)
+            Cv2.Line(dispEditClipMat, ptCrossHairX1, ptCrossHairX2, New Scalar(0, 0, 0), 2)
             Dim ptCrossHairY1 = New Point(dispClipHalf + Me._clickedPos.X, dispClipHalf + Me._clickedPos.Y - 5)
             Dim ptCrossHairY2 = New Point(dispClipHalf + Me._clickedPos.X, dispClipHalf + Me._clickedPos.Y + 5)
-            Cv2.Line(dispEditClipMat, ptCrossHairY1, ptCrossHairY2, New Scalar(0, 0, 255), 1)
+            Cv2.Line(dispEditClipMat, ptCrossHairY1, ptCrossHairY2, New Scalar(0, 0, 0), 2)
 
             'Update
             editClipMat = dispEditClipMat.Clone()
@@ -319,12 +319,12 @@ Public Class MainWindow
 
         'ClipEx image from raw image
         Dim mousePos As New Point(Me._clickedPos.X * _zoomRatio, Me._clickedPos.Y * _zoomRatio)
-        Dim tempRawClipExMat = rawCameraMat(mousePos.Y, mousePos.Y + CLIP_SIZE_EX, mousePos.X, mousePos.X + CLIP_SIZE_EX)
+        Dim tempRawClipExMat = rawCameraMat(mousePos.Y, mousePos.Y + _clipSizeEx, mousePos.X, mousePos.X + _clipSizeEx)
 
         'get average num
         Dim avgNum As Integer = 1
         Dim isAverage = (Me.cbxAveraging.Checked = True) And (String.IsNullOrEmpty(Me.tbxAverage.Text) = False) And (Integer.Parse(Me.tbxAverage.Text) >= 1)
-        Dim rawClipRect = New Rect(New Point(rawDiffHalf, rawDiffHalf), New Size(CLIP_SIZE, CLIP_SIZE))
+        Dim rawClipRect = New Rect(New Point(rawDiffHalf, rawDiffHalf), New Size(_clipSize, _clipSize))
         If isAverage = True Then
             'Do Average
             avgNum = Integer.Parse(Me.tbxAverage.Text)
@@ -522,12 +522,6 @@ Public Class MainWindow
         Next
         cmbImgSize.SelectedIndex = 1
 
-        'save
-        Dim initCorrectName = "MyImageDataset"
-        _saveImgUtil.Init(SaveImageUtili.GetExePath(), "MyImageDataset")
-        Me.tbxFolderPath.Text = _saveImgUtil.GetSaveFolder()
-        Me.tbxCorrectName.Text = "INPUT CORRECT"
-
         'UART
         oSerialPort = New SerialPort()
         oSerialPort.BaudRate = 9600 '9600
@@ -535,7 +529,6 @@ Public Class MainWindow
         oSerialPort.RtsEnable = False
         oSerialPort.DataBits = 8
         oSerialPort.Parity = False
-
         Dim ports = System.IO.Ports.SerialPort.GetPortNames()
         For Each portName In ports
             Console.WriteLine("{0}", portName)
@@ -568,9 +561,10 @@ Public Class MainWindow
         Next
         cmbImageFormat.SelectedIndex = 1
 
-        'debug
-        'cmbCamID.SelectedIndex = 1
-        'btnCamOpen.PerformClick()
+        'save
+        Dim initCorrectName = "MyImageDataset"
+        Me.tbxFolderPath.Text = SaveImageUtili.GetFullPathWithCorrectName(SaveImageUtili.GetExePath(), "MyImageDataset")
+        Me.tbxCorrectName.Text = "INPUT CORRECT"
     End Sub
 
     ''' <summary>
@@ -602,14 +596,14 @@ Public Class MainWindow
         '表示画像内にROIを限定
         If _cap IsNot Nothing Then
             'センタリング
-            Me._clickedPos.X -= (CLIP_SIZE_EX / _zoomRatio) / 2.0
-            Me._clickedPos.Y -= (CLIP_SIZE_EX / _zoomRatio) / 2.0
+            Me._clickedPos.X -= (_clipSizeEx / _zoomRatio) / 2.0
+            Me._clickedPos.Y -= (_clipSizeEx / _zoomRatio) / 2.0
 
             '領域指定
             Dim dispW = _rawWidth / _zoomRatio
             Dim dispH = _rawHeight / _zoomRatio
-            Dim maxDispW = CInt(0.5 + Me._clickedPos.X + CLIP_SIZE_EX / _zoomRatio)
-            Dim maxDispH = CInt(0.5 + Me._clickedPos.Y + CLIP_SIZE_EX / _zoomRatio)
+            Dim maxDispW = CInt(0.5 + Me._clickedPos.X + _clipSizeEx / _zoomRatio)
+            Dim maxDispH = CInt(0.5 + Me._clickedPos.Y + _clipSizeEx / _zoomRatio)
             If Me._clickedPos.X < 0 Then
                 Me._clickedPos.X = 0
             End If
@@ -635,6 +629,8 @@ Public Class MainWindow
         If _cap Is Nothing Then
             'open cap
             _thread = New Threading.Thread(AddressOf Worker)
+            _thread.Priority = System.Threading.ThreadPriority.Highest
+            _thread.Name = "Cap Thread"
             _thread.Start()
 
             btnCamOpen.Text = "CamClose"
@@ -662,15 +658,12 @@ Public Class MainWindow
         For Each tempVal In [Enum].GetValues(GetType(EnumClipImageSize))
             Dim eName As String = [Enum].GetName(GetType(EnumClipImageSize), tempVal)
             If Me.cmbClipSize.SelectedItem.ToString() = eName Then
-                Me.CLIP_SIZE = CInt(tempVal)
+                Me._clipSize = CInt(tempVal)
             End If
         Next
-        Me.CLIP_SIZE_EX = CInt(CLIP_SIZE * 1.4143 + 0.5)
-        Dim diff As Integer = CLIP_SIZE_EX - CLIP_SIZE
+        Me._clipSizeEx = CInt(Me._clipSize * 1.5 + 0.5)
+        Dim diff As Integer = _clipSizeEx - _clipSize
         Me.lblExDiff.Text = String.Format("Diff: {0} [pixel]", diff)
-
-        'slide
-        Me.tbxSlide.Text = CInt(diff / 2)
     End Sub
 
     ''' <summary>
@@ -705,7 +698,7 @@ Public Class MainWindow
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
     Private Sub btnOpenFolder_Click(sender As Object, e As EventArgs) Handles btnOpenFolder.Click
-        System.Diagnostics.Process.Start(_saveImgUtil.GetSaveFolder())
+        System.Diagnostics.Process.Start(Me.tbxFolderPath.Text)
     End Sub
 
     ''' <summary>
@@ -714,24 +707,20 @@ Public Class MainWindow
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
     Private Sub btnSaveWithSettings_Click(sender As Object, e As EventArgs) Handles btnSaveWithSettings.Click
-        If Me.cbxLightCtrl.Checked = True Then
-
+        If Me._cap Is Nothing Then
+            Return
         End If
-
-
-
-
-        'Settings
-        Dim ip = New ImageProcesser(Me._rawClipExMat)
+        'set image process
+        Dim ip = New ImageProcesser()
 
         If Me.cbxRotation.Checked Then
             ip.IsRotation = True
             ip.RotationStep = Integer.Parse(tbxRotation.Text)
         End If
 
-        If Me.cbxSlide.Checked Then
-            ip.IsSlide = True
-            ip.SlideDiff = Integer.Parse(tbxSlide.Text)
+        If Me.cbxMove.Checked Then
+            ip.IsMove = True
+            ip.NumOfMove = Integer.Parse(tbxNumOfMove.Text)
         End If
 
         If Me.cbxFlip.Checked Then
@@ -750,32 +739,133 @@ Public Class MainWindow
             End If
         Next
 
-        '無1 白4 上RGB3 右RGB3 下RGB3 左RGB3 17
-        'Rotation 20degree 359/30 11
-        'Slideはランダム移動 10
-        'Flip 上下 2
+        ip.ClipSize = Me._clipSize
 
-        '縮小
-        'Dim saveMat As New Mat()
-        'Cv2.Resize(Me._rawClipMat, saveMat, New OpenCvSharp.Size(imgSize, imgSize), interpolation:=InterpolationFlags.Cubic)
+        'check save folder
+        Dim saveImgUtil As New SaveImageUtili()
+        saveImgUtil.Init(Me.tbxFolderPath.Text)
 
-        'Convert grayscale
-        'If Me._isColor = False Then
-        '    Dim tempMat = New Mat()
-        '    Cv2.CvtColor(saveMat, tempMat, ColorConversionCodes.BGRA2GRAY)
-        '    saveMat = tempMat
-        'End If
+        'save
+        Dim imgFormat = CType(Me.cmbImageFormat.SelectedIndex, EnumOutpuImageFormat)
 
-        '保存
-        'Dim tempBmpClass = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
-        'Dim imgFormat = CType(Me.cmbImageFormat.SelectedIndex, EnumOutpuImageFormat)
-        '_saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, tempBmpClass)
+        Dim sleepTime = Me._elapsedTime * 1.5
+        If Me.cbxAveraging.Checked = True Then
+            sleepTime = sleepTime * Integer.Parse(Me.tbxAverage.Text) + 300
+        End If
+        If Me.cbxLightCtrl.Checked = True Then
+            'Exist LED Light control
+            Dim patterns = GenP()
+            For Each p In patterns
+                'LED pattern
+                _sendData = p.ToList()
+                SendArduinoWithCheckSum()
+
+                'sleep
+                System.Threading.Thread.Sleep(2000)
+
+                SyncLock objlock
+                    ip.InputMat = Me._rawClipExMat.Clone()
+                End SyncLock
+                Dim saveMats = ip.GetMats()
+                For Each saveMat In saveMats
+                    Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
+                    saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
+                Next
+
+                '砂時計防止
+                Application.DoEvents()
+            Next
+
+            'LED OFF
+            _sendData = Me.GetInitSendData().ToList()
+            SendArduinoWithCheckSum()
+        Else
+            'No LED control
+            SyncLock objlock
+                ip.InputMat = Me._rawClipExMat.Clone()
+            End SyncLock
+            Dim saveMats = ip.GetMats()
+            For Each saveMat In saveMats
+                Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
+                saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
+            Next
+        End If
     End Sub
+
+    Private Function GetInitSendData() As Byte()
+        Dim size = (1 + SIZE_CH_COLOR * NUM_OF_LED) - 1
+        Dim tempBytes(size) As Byte
+        tempBytes(IDX_BRIGHTNESS) = _LightBrightness
+        tempBytes(IDX_CH0) = 0
+        tempBytes(IDX_CH1) = 1
+        tempBytes(IDX_CH2) = 2
+        tempBytes(IDX_CH3) = 3
+        tempBytes(IDX_CH4) = 4
+
+        Return tempBytes
+    End Function
+
+    Private Function GenP() As List(Of Byte())
+        Dim colorPattern = New List(Of Byte())
+        Dim size = (1 + SIZE_CH_COLOR * NUM_OF_LED) - 1
+
+        '何もなし
+        With Nothing
+            Dim tempBytes = GetInitSendData()
+            colorPattern.Add(tempBytes)
+        End With
+
+        'table
+        With Nothing
+            Dim tempBytes = GetInitSendData()
+            tempBytes(IDX_CH4 + 1) = 128
+            tempBytes(IDX_CH4 + 2) = 128
+            tempBytes(IDX_CH4 + 3) = 128
+            colorPattern.Add(tempBytes)
+        End With
+
+        '上
+        With Nothing
+            Dim tempBytes = GetInitSendData()
+            tempBytes(IDX_CH0 + 1) = 128
+            tempBytes(IDX_CH0 + 2) = 0
+            tempBytes(IDX_CH0 + 3) = 0
+            tempBytes(IDX_CH1 + 1) = 128
+            tempBytes(IDX_CH1 + 2) = 0
+            tempBytes(IDX_CH1 + 3) = 0
+            colorPattern.Add(tempBytes)
+        End With
+
+        With Nothing
+            Dim tempBytes = GetInitSendData()
+            tempBytes(IDX_CH0 + 1) = 0
+            tempBytes(IDX_CH0 + 2) = 128
+            tempBytes(IDX_CH0 + 3) = 0
+            tempBytes(IDX_CH1 + 1) = 0
+            tempBytes(IDX_CH1 + 2) = 128
+            tempBytes(IDX_CH1 + 3) = 0
+            colorPattern.Add(tempBytes)
+        End With
+
+        With Nothing
+            Dim tempBytes = GetInitSendData()
+            tempBytes(IDX_CH0 + 1) = 0
+            tempBytes(IDX_CH0 + 2) = 0
+            tempBytes(IDX_CH0 + 3) = 128
+            tempBytes(IDX_CH1 + 1) = 0
+            tempBytes(IDX_CH1 + 2) = 0
+            tempBytes(IDX_CH1 + 3) = 128
+            colorPattern.Add(tempBytes)
+        End With
+
+        Return colorPattern
+    End Function
 
     Private Const NUM_OF_LED As Integer = 5
     Private _LightBrightness As Byte = 255
     Private Const LightStep As Byte = 32
     Private Const SIZE_CH_COLOR As Integer = 4
+
     Private Const IDX_BRIGHTNESS As Integer = 0
     Private Const IDX_CH0 As Integer = 1
     Private Const IDX_CH1 As Integer = IDX_CH0 + SIZE_CH_COLOR
@@ -806,11 +896,9 @@ Public Class MainWindow
     Private Sub InitSendData()
         '初期化
         _sendData.Clear()
-        If _sendData.Count <> (1 + SIZE_CH_COLOR * NUM_OF_LED) Then
-            For i As Integer = 0 To (1 + SIZE_CH_COLOR * NUM_OF_LED) - 1
-                _sendData.Add(0)
-            Next
-        End If
+        For i As Integer = 0 To (1 + SIZE_CH_COLOR * NUM_OF_LED) - 1
+            _sendData.Add(0)
+        Next
     End Sub
 
     Private Sub btnLightDemo_Click(sender As Object, e As EventArgs) Handles btnLightDemo.Click
