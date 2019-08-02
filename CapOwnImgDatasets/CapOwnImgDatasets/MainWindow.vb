@@ -833,14 +833,7 @@ Public Class MainWindow
         End If
     End Sub
 
-    ''' <summary>
-    ''' LED制御
-    ''' </summary>
-    Private Async Sub SendLEDSignal()
-        If Me._ledPatternGen Is Nothing Then
-            Return
-        End If
-
+    Public Function LEDP() As List(Of Byte)
         Dim tempBytes As New List(Of Byte)
         Me._ledPatternGen.Brightness = Me.trbBrightness.Value
         If Me.rdnSingle.Checked Then
@@ -849,12 +842,33 @@ Public Class MainWindow
             tempBytes = GenLEDPattern.GenSamePattern(Me._ledPatternGen.NUM_OF_LED, Me._ledPatternGen.Brightness,
                                                     trbR.Value, trbG.Value, trbB.Value)
         ElseIf Me.rdnUpper.Checked Then
-            tempBytes = GenLEDPattern.GenSamePattern(Me._ledPatternGen.NUM_OF_LED - 1, Me._ledPatternGen.Brightness,
+            tempBytes = GenLEDPattern.GenSamePattern(Me._ledPatternGen.NUM_OF_LED, Me._ledPatternGen.Brightness,
                                                     trbR.Value, trbG.Value, trbB.Value)
+            tempBytes(GenLEDPattern.IDX_CH4 + 1) = 0
+            tempBytes(GenLEDPattern.IDX_CH4 + 2) = 0
+            tempBytes(GenLEDPattern.IDX_CH4 + 3) = 0
         ElseIf Me.rdnTable.Checked Then
-            tempBytes = Me._ledPatternGen.GenSinglePattern(Me._ledPatternGen.NUM_OF_LED - 1, trbR.Value, trbG.Value, trbB.Value)
+            tempBytes = GenLEDPattern.GenSamePattern(Me._ledPatternGen.NUM_OF_LED, Me._ledPatternGen.Brightness,
+                                                    trbR.Value, trbG.Value, trbB.Value)
+            For i As Integer = 0 To 4 - 1
+                Dim idx = 1 + i * GenLEDPattern.SIZE_CH_COLOR
+                tempBytes(idx + 1) = 0
+                tempBytes(idx + 2) = 0
+                tempBytes(idx + 3) = 0
+            Next
+        End If
+        Return tempBytes
+    End Function
+
+    ''' <summary>
+    ''' LED制御
+    ''' </summary>
+    Private Async Sub SendLEDSignal()
+        If Me._ledPatternGen Is Nothing Then
+            Return
         End If
 
+        Dim tempBytes = LEDP()
         Await Task.Run(Sub()
                            SyncLock _ledLock
                                Me.SendArduinoWithCheckSum(tempBytes)
@@ -863,7 +877,6 @@ Public Class MainWindow
     End Sub
 
     Private Sub btnDemoOFF_Click(sender As Object, e As EventArgs) Handles btnDemoOFF.Click
-        Me.trbBrightness.Value = 0
         Me.trbR.Value = 0
         Me.trbG.Value = 0
         Me.trbB.Value = 0
@@ -944,22 +957,8 @@ Public Class MainWindow
     Private Sub btnRegister_Click(sender As Object, e As EventArgs) Handles btnRegister.Click
         LEDPatternSets.GetInstance().Load()
 
-        Dim tempBytes As New List(Of Byte)
-        Me._ledPatternGen.Brightness = Me.trbBrightness.Value
-        If Me.rdnSingle.Checked Then
-            tempBytes = Me._ledPatternGen.GenSinglePattern(Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
-        ElseIf Me.rdnLink.Checked Then
-            tempBytes = GenLEDPattern.GenSamePattern(Me._ledPatternGen.NUM_OF_LED, Me._ledPatternGen.Brightness,
-                                                    trbR.Value, trbG.Value, trbB.Value)
-        ElseIf Me.rdnUpper.Checked Then
-            tempBytes = GenLEDPattern.GenSamePattern(Me._ledPatternGen.NUM_OF_LED - 1, Me._ledPatternGen.Brightness,
-                                                    trbR.Value, trbG.Value, trbB.Value)
-        ElseIf Me.rdnTable.Checked Then
-            tempBytes = Me._ledPatternGen.GenSinglePattern(Me._ledPatternGen.NUM_OF_LED - 1, trbR.Value, trbG.Value, trbB.Value)
-        End If
-
+        Dim tempBytes = LEDP()
         LEDPatternSets.GetInstance().Patterns.Add(tempBytes)
-
         LEDPatternSets.GetInstance().Update()
     End Sub
 
@@ -968,7 +967,7 @@ Public Class MainWindow
 
         For Each p In LEDPatternSets.GetInstance().Patterns
             Me.SendArduinoWithCheckSum(p)
-            System.Threading.Thread.Sleep(100)
+            System.Threading.Thread.Sleep(300)
         Next
     End Sub
 
