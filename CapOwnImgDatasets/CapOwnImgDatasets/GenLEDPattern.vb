@@ -120,11 +120,11 @@ Public Class GenLEDPattern
     Public Function GenSinglePattern(ByVal ch As Integer,
                                  ByVal r As Integer, ByVal g As Integer, ByVal b As Integer) As List(Of Byte)
         Dim p = GenLEDPattern.GetInitSendData(1, Brightness)
-        p.Add(Me.Brightness)
-        p.Add(ch)
-        p.Add(r)
-        p.Add(g)
-        p.Add(b)
+        p(IDX_BRIGHTNESS) = Me.Brightness
+        p(IDX_CH0) = ch
+        p(IDX_CH0 + 1) = r
+        p(IDX_CH0 + 2) = g
+        p(IDX_CH0 + 3) = b
         Return p
     End Function
 

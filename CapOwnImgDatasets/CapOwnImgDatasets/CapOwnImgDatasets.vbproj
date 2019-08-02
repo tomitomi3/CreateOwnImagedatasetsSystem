@@ -97,6 +97,7 @@
   <ItemGroup>
     <Compile Include="GenLEDPattern.vb" />
     <Compile Include="ImageProcessor.vb" />
+    <Compile Include="LEDPatternSets.vb" />
     <Compile Include="MainWindow.vb">
       <SubType>Form</SubType>
     </Compile>

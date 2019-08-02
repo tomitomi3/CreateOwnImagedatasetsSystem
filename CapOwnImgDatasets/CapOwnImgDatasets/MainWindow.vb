@@ -267,7 +267,7 @@ Public Class MainWindow
             End Try
             sw.Stop()
             Me._elapsedTime = sw.ElapsedMilliseconds
-            Console.WriteLine("{0}[fps]", 1000.0 / sw.ElapsedMilliseconds)
+            'Console.WriteLine("{0}[fps]", 1000.0 / sw.ElapsedMilliseconds)
         End While
 
         'done
@@ -651,7 +651,7 @@ Public Class MainWindow
         If _cap Is Nothing Then
             'open cap
             _thread = New Threading.Thread(AddressOf Worker)
-            '_thread.Priority = System.Threading.ThreadPriority.Highest
+            _thread.Priority = System.Threading.ThreadPriority.Highest
             _thread.Name = "Cap Thread"
             _thread.Start()
 
@@ -772,12 +772,13 @@ Public Class MainWindow
 
         If Me.cbxLightCtrl.Checked = True Then
             'Exist LED Light control
-            Dim sleepTime = Me._elapsedTime * 1.5
+            Dim sleepTime = Me._elapsedTime * 1.5 + 200
             If Me.cbxAveraging.Checked = True Then
                 sleepTime = sleepTime * Integer.Parse(Me.tbxAverage.Text) + 300
             End If
             Await Task.Run(Sub()
-                               Dim patterns = _ledPatternGen.GetPattern()
+                               LEDPatternSets.GetInstance().Load()
+                               Dim patterns = LEDPatternSets.GetInstance().Patterns
                                For Each p In patterns
                                    'LED pattern
                                    SendArduinoWithCheckSum(p)
@@ -833,7 +834,7 @@ Public Class MainWindow
     End Sub
 
     ''' <summary>
-    ''' 非同期でLED制御
+    ''' LED制御
     ''' </summary>
     Private Async Sub SendLEDSignal()
         If Me._ledPatternGen Is Nothing Then
@@ -863,6 +864,9 @@ Public Class MainWindow
 
     Private Sub btnDemoOFF_Click(sender As Object, e As EventArgs) Handles btnDemoOFF.Click
         Me.trbBrightness.Value = 0
+        Me.trbR.Value = 0
+        Me.trbG.Value = 0
+        Me.trbB.Value = 0
     End Sub
 
     Private Sub btnDemoR_Click(sender As Object, e As EventArgs) Handles btnDemoR.Click
@@ -935,6 +939,48 @@ Public Class MainWindow
         Using writer As StreamWriter = New StreamWriter("RGBVALUE_DEBUG.txt", append:=True, encoding:=Encoding.GetEncoding("Shift_JIS"))
             writer.WriteLine("{0},{1},{2},{3},{4},{5}", trbR.Value, trbG.Value, trbB.Value, temp(1), temp(2), temp(3))
         End Using
+    End Sub
+
+    Private Sub btnRegister_Click(sender As Object, e As EventArgs) Handles btnRegister.Click
+        LEDPatternSets.GetInstance().Load()
+
+        Dim tempBytes As New List(Of Byte)
+        Me._ledPatternGen.Brightness = Me.trbBrightness.Value
+        If Me.rdnSingle.Checked Then
+            tempBytes = Me._ledPatternGen.GenSinglePattern(Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
+        ElseIf Me.rdnLink.Checked Then
+            tempBytes = GenLEDPattern.GenSamePattern(Me._ledPatternGen.NUM_OF_LED, Me._ledPatternGen.Brightness,
+                                                    trbR.Value, trbG.Value, trbB.Value)
+        ElseIf Me.rdnUpper.Checked Then
+            tempBytes = GenLEDPattern.GenSamePattern(Me._ledPatternGen.NUM_OF_LED - 1, Me._ledPatternGen.Brightness,
+                                                    trbR.Value, trbG.Value, trbB.Value)
+        ElseIf Me.rdnTable.Checked Then
+            tempBytes = Me._ledPatternGen.GenSinglePattern(Me._ledPatternGen.NUM_OF_LED - 1, trbR.Value, trbG.Value, trbB.Value)
+        End If
+
+        LEDPatternSets.GetInstance().Patterns.Add(tempBytes)
+
+        LEDPatternSets.GetInstance().Update()
+    End Sub
+
+    Private Sub btnPatternTest_Click(sender As Object, e As EventArgs) Handles btnPatternTest.Click
+        LEDPatternSets.GetInstance().Load()
+
+        For Each p In LEDPatternSets.GetInstance().Patterns
+            Me.SendArduinoWithCheckSum(p)
+            System.Threading.Thread.Sleep(100)
+        Next
+    End Sub
+
+    Private Sub btnBack_Click(sender As Object, e As EventArgs) Handles btnBack.Click
+        LEDPatternSets.GetInstance().Load()
+
+        If LEDPatternSets.GetInstance().Patterns.Count > 0 Then
+            Dim lastIndex = LEDPatternSets.GetInstance().Patterns.Count
+            LEDPatternSets.GetInstance().Patterns.RemoveAt(lastIndex - 1)
+        End If
+
+        LEDPatternSets.GetInstance().Update()
     End Sub
 #End Region
 End Class

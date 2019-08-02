@@ -81,6 +81,9 @@ Partial Class MainWindow
         Me.trbG = New System.Windows.Forms.TrackBar()
         Me.trbB = New System.Windows.Forms.TrackBar()
         Me.cmbLEDCH = New System.Windows.Forms.ComboBox()
+        Me.btnRegister = New System.Windows.Forms.Button()
+        Me.btnPatternTest = New System.Windows.Forms.Button()
+        Me.btnBack = New System.Windows.Forms.Button()
         CType(Me.pbxMainRaw, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.pbxProcessed, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox2.SuspendLayout()
@@ -509,6 +512,9 @@ Partial Class MainWindow
         '
         'gbxLED
         '
+        Me.gbxLED.Controls.Add(Me.btnBack)
+        Me.gbxLED.Controls.Add(Me.btnPatternTest)
+        Me.gbxLED.Controls.Add(Me.btnRegister)
         Me.gbxLED.Controls.Add(Me.rdnTable)
         Me.gbxLED.Controls.Add(Me.rdnUpper)
         Me.gbxLED.Controls.Add(Me.rdnLink)
@@ -626,7 +632,7 @@ Partial Class MainWindow
         'lblRGBFromROI
         '
         Me.lblRGBFromROI.AutoSize = True
-        Me.lblRGBFromROI.Location = New System.Drawing.Point(330, 194)
+        Me.lblRGBFromROI.Location = New System.Drawing.Point(352, 92)
         Me.lblRGBFromROI.Name = "lblRGBFromROI"
         Me.lblRGBFromROI.Size = New System.Drawing.Size(53, 12)
         Me.lblRGBFromROI.TabIndex = 34
@@ -634,7 +640,7 @@ Partial Class MainWindow
         '
         'btnRGBValueSave
         '
-        Me.btnRGBValueSave.Location = New System.Drawing.Point(298, 163)
+        Me.btnRGBValueSave.Location = New System.Drawing.Point(320, 61)
         Me.btnRGBValueSave.Name = "btnRGBValueSave"
         Me.btnRGBValueSave.Size = New System.Drawing.Size(114, 23)
         Me.btnRGBValueSave.TabIndex = 33
@@ -685,11 +691,38 @@ Partial Class MainWindow
         Me.cmbLEDCH.Size = New System.Drawing.Size(100, 20)
         Me.cmbLEDCH.TabIndex = 0
         '
+        'btnRegister
+        '
+        Me.btnRegister.Location = New System.Drawing.Point(320, 134)
+        Me.btnRegister.Name = "btnRegister"
+        Me.btnRegister.Size = New System.Drawing.Size(114, 23)
+        Me.btnRegister.TabIndex = 38
+        Me.btnRegister.Text = "Register"
+        Me.btnRegister.UseVisualStyleBackColor = True
+        '
+        'btnPatternTest
+        '
+        Me.btnPatternTest.Location = New System.Drawing.Point(320, 207)
+        Me.btnPatternTest.Name = "btnPatternTest"
+        Me.btnPatternTest.Size = New System.Drawing.Size(114, 23)
+        Me.btnPatternTest.TabIndex = 39
+        Me.btnPatternTest.Text = "Test"
+        Me.btnPatternTest.UseVisualStyleBackColor = True
+        '
+        'btnBack
+        '
+        Me.btnBack.Location = New System.Drawing.Point(320, 170)
+        Me.btnBack.Name = "btnBack"
+        Me.btnBack.Size = New System.Drawing.Size(114, 23)
+        Me.btnBack.TabIndex = 40
+        Me.btnBack.Text = "Back"
+        Me.btnBack.UseVisualStyleBackColor = True
+        '
         'MainWindow
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1046, 748)
+        Me.ClientSize = New System.Drawing.Size(1140, 748)
         Me.Controls.Add(Me.gbxCollect)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox3)
@@ -771,4 +804,7 @@ Partial Class MainWindow
     Friend WithEvents rdnUpper As RadioButton
     Friend WithEvents rdnLink As RadioButton
     Friend WithEvents rdnSingle As RadioButton
+    Friend WithEvents btnRegister As Button
+    Friend WithEvents btnPatternTest As Button
+    Friend WithEvents btnBack As Button
 End Class
