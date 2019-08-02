@@ -61,7 +61,7 @@ Partial Class MainWindow
         Me.btnDemoW = New System.Windows.Forms.Button()
         Me.gbxCollect = New System.Windows.Forms.GroupBox()
         Me.cmbImageFormat = New System.Windows.Forms.ComboBox()
-        Me.cbxColorOrGrayscale = New System.Windows.Forms.CheckBox()
+        Me.cbxGrayscale = New System.Windows.Forms.CheckBox()
         Me.Label8 = New System.Windows.Forms.Label()
         Me.cmbCamImgSize = New System.Windows.Forms.ComboBox()
         Me.Label3 = New System.Windows.Forms.Label()
@@ -431,7 +431,7 @@ Partial Class MainWindow
         'gbxCollect
         '
         Me.gbxCollect.Controls.Add(Me.cmbImageFormat)
-        Me.gbxCollect.Controls.Add(Me.cbxColorOrGrayscale)
+        Me.gbxCollect.Controls.Add(Me.cbxGrayscale)
         Me.gbxCollect.Controls.Add(Me.Label8)
         Me.gbxCollect.Controls.Add(Me.cmbCamImgSize)
         Me.gbxCollect.Controls.Add(Me.Label1)
@@ -479,15 +479,15 @@ Partial Class MainWindow
         Me.cmbImageFormat.Size = New System.Drawing.Size(86, 20)
         Me.cmbImageFormat.TabIndex = 33
         '
-        'cbxColorOrGrayscale
+        'cbxGrayscale
         '
-        Me.cbxColorOrGrayscale.AutoSize = True
-        Me.cbxColorOrGrayscale.Location = New System.Drawing.Point(13, 162)
-        Me.cbxColorOrGrayscale.Name = "cbxColorOrGrayscale"
-        Me.cbxColorOrGrayscale.Size = New System.Drawing.Size(75, 16)
-        Me.cbxColorOrGrayscale.TabIndex = 32
-        Me.cbxColorOrGrayscale.Text = "Grayscale"
-        Me.cbxColorOrGrayscale.UseVisualStyleBackColor = True
+        Me.cbxGrayscale.AutoSize = True
+        Me.cbxGrayscale.Location = New System.Drawing.Point(13, 162)
+        Me.cbxGrayscale.Name = "cbxGrayscale"
+        Me.cbxGrayscale.Size = New System.Drawing.Size(75, 16)
+        Me.cbxGrayscale.TabIndex = 32
+        Me.cbxGrayscale.Text = "Grayscale"
+        Me.cbxGrayscale.UseVisualStyleBackColor = True
         '
         'Label8
         '
@@ -752,7 +752,7 @@ Partial Class MainWindow
     Friend WithEvents btnRGBValueSave As Button
     Friend WithEvents lblRGBFromROI As Label
     Friend WithEvents cmbImageFormat As ComboBox
-    Friend WithEvents cbxColorOrGrayscale As CheckBox
+    Friend WithEvents cbxGrayscale As CheckBox
     Friend WithEvents Label8 As Label
     Friend WithEvents trbBrightness As TrackBar
     Friend WithEvents lblBrightness As Label

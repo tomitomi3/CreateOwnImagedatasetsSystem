@@ -3,6 +3,7 @@ Imports System.IO.Ports
 Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Windows.Forms
+Imports Newtonsoft.Json
 Imports OpenCvSharp
 
 Public Class MainWindow
@@ -81,8 +82,10 @@ Public Class MainWindow
     ''' <summary>拡大率(diplay to rawimg)</summary>
     Private _zoomRatio As Double = 0.0
 
+    ''' <summary>加算Mat</summary>
     Private _sumMat As New List(Of Mat)
 
+    ''' <summary>加算平均回数</summary>
     Private _avgCount As Byte = 0
 
     Private _clipSizeEx As Integer = 0
@@ -97,6 +100,7 @@ Public Class MainWindow
 
     ''' <summary>elapsed time per 1 capture</summary>
     Private _elapsedTime As Double = 0.0
+
     ''' <summary>To Send Arduino data</summary>
     Private _sendData As New List(Of Byte)
 
@@ -158,11 +162,6 @@ Public Class MainWindow
                             _cap.Set(CaptureProperty.FrameHeight, 1536)
                         End If
 
-                        '_cap.Set(CaptureProperty.AutoExposure, 1)
-                        '_cap.Set(CaptureProperty.Exposure, 2.0)
-                        '_cap.Set(CaptureProperty.Gain, 2.0)
-                        '_cap.Set(CaptureProperty.Gamma, 0.5)
-
                         'CapuretPropery
                         Console.WriteLine("Camera ID    :{0}", camId)
                         Console.WriteLine(" Width       :{0}", _cap.Get(CaptureProperty.FrameWidth))
@@ -180,7 +179,6 @@ Public Class MainWindow
                         Me._zoomRatio = _cap.FrameWidth / Me.pbxMainRaw.Width
                         Me._rawWidth = _cap.FrameWidth
                         Me._rawHeight = _cap.FrameHeight
-
                     End Sub
                   )
     End Sub
@@ -195,9 +193,6 @@ Public Class MainWindow
             Try
                 'create VideoCapture instance
                 Me.InitCam()
-
-                'wait ゆらぎ
-                'System.Threading.Thread.Sleep(rnd.Next(20, 100))
 
                 'capture
                 Using mat = New Mat()
@@ -565,6 +560,41 @@ Public Class MainWindow
         Dim initCorrectName = "MyImageDataset"
         Me.tbxFolderPath.Text = SaveImageUtili.GetFullPathWithCorrectName(SaveImageUtili.GetExePath(), "MyImageDataset")
         Me.tbxCorrectName.Text = "INPUT CORRECT"
+
+        'restore
+        Me.RestoreSettings()
+    End Sub
+
+    ''' <summary>
+    ''' 設定値復元
+    ''' </summary>
+    Private Sub RestoreSettings()
+        SettingFile.GetInstance().Load()
+        Me.cbxAveraging.Checked = SettingFile.GetInstance().IsAverage
+        Me.tbxAverage.Text = SettingFile.GetInstance().NumAve.ToString()
+        Me.cbxLightCtrl.Checked = SettingFile.GetInstance().IsLightCtrl
+        Me.cbxRotation.Checked = SettingFile.GetInstance().IsRotation
+        Me.tbxRotation.Text = SettingFile.GetInstance().RotationStep.ToString()
+        Me.cbxMove.Checked = SettingFile.GetInstance().IsMove
+        Me.tbxNumOfMove.Text = SettingFile.GetInstance().NumMoveImgs.ToString()
+        Me.cbxFlip.Checked = SettingFile.GetInstance().IsFlip
+        Me.cbxGrayscale.Checked = Not SettingFile.GetInstance().IsColor
+    End Sub
+
+    ''' <summary>
+    ''' 設定値保存
+    ''' </summary>
+    Private Sub SaveSettings()
+        SettingFile.GetInstance().IsAverage = Me.cbxAveraging.Checked
+        SettingFile.GetInstance().NumAve = Integer.Parse(Me.tbxAverage.Text)
+        SettingFile.GetInstance().IsLightCtrl = Me.cbxLightCtrl.Checked
+        SettingFile.GetInstance().IsRotation = Me.cbxRotation.Checked
+        SettingFile.GetInstance().RotationStep = Integer.Parse(Me.tbxRotation.Text)
+        SettingFile.GetInstance().IsMove = Me.cbxMove.Checked
+        SettingFile.GetInstance().NumMoveImgs = Integer.Parse(Me.tbxNumOfMove.Text)
+        SettingFile.GetInstance().IsFlip = Me.cbxFlip.Checked
+        SettingFile.GetInstance().IsColor = Not Me.cbxGrayscale.Checked
+        SettingFile.GetInstance().Update()
     End Sub
 
     ''' <summary>
@@ -573,6 +603,9 @@ Public Class MainWindow
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
     Private Sub MainWindow_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        'save recent setting
+        Me.SaveSettings()
+
         If _thread Is Nothing Then
             Return
         End If
@@ -688,8 +721,8 @@ Public Class MainWindow
         End If
     End Sub
 
-    Private Sub cbxColorOrGrayscale_CheckedChanged(sender As Object, e As EventArgs) Handles cbxColorOrGrayscale.CheckedChanged
-        Me._isColor = Not Me.cbxColorOrGrayscale.Checked
+    Private Sub cbxColorOrGrayscale_CheckedChanged(sender As Object, e As EventArgs) Handles cbxGrayscale.CheckedChanged
+        Me._isColor = Not Me.cbxGrayscale.Checked
     End Sub
 
     ''' <summary>
@@ -727,7 +760,7 @@ Public Class MainWindow
             ip.IsFlip = True
         End If
 
-        If Me.cbxColorOrGrayscale.Checked Then
+        If Me.cbxGrayscale.Checked Then
             ip.IsColor = False
         End If
 
