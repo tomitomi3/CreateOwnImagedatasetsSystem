@@ -52,7 +52,6 @@ Partial Class MainWindow
         Me.btnSaveWithSettings = New System.Windows.Forms.Button()
         Me.cbxFlip = New System.Windows.Forms.CheckBox()
         Me.lblExDiff = New System.Windows.Forms.Label()
-        Me.btnLightDemo = New System.Windows.Forms.Button()
         Me.cbxPort = New System.Windows.Forms.ComboBox()
         Me.btnOpenClose = New System.Windows.Forms.Button()
         Me.btnDemoR = New System.Windows.Forms.Button()
@@ -65,10 +64,15 @@ Partial Class MainWindow
         Me.Label8 = New System.Windows.Forms.Label()
         Me.cmbCamImgSize = New System.Windows.Forms.ComboBox()
         Me.Label3 = New System.Windows.Forms.Label()
-        Me.tbxRGBDemo = New System.Windows.Forms.TextBox()
-        Me.btnSetRGB = New System.Windows.Forms.Button()
         Me.gbxLED = New System.Windows.Forms.GroupBox()
+        Me.rdnTable = New System.Windows.Forms.RadioButton()
+        Me.rdnUpper = New System.Windows.Forms.RadioButton()
+        Me.rdnLink = New System.Windows.Forms.RadioButton()
+        Me.rdnSingle = New System.Windows.Forms.RadioButton()
         Me.lblBrightness = New System.Windows.Forms.Label()
+        Me.lblB = New System.Windows.Forms.Label()
+        Me.lblG = New System.Windows.Forms.Label()
+        Me.lblR = New System.Windows.Forms.Label()
         Me.trbBrightness = New System.Windows.Forms.TrackBar()
         Me.lblRGBFromROI = New System.Windows.Forms.Label()
         Me.btnRGBValueSave = New System.Windows.Forms.Button()
@@ -76,9 +80,6 @@ Partial Class MainWindow
         Me.trbR = New System.Windows.Forms.TrackBar()
         Me.trbG = New System.Windows.Forms.TrackBar()
         Me.trbB = New System.Windows.Forms.TrackBar()
-        Me.lblB = New System.Windows.Forms.Label()
-        Me.lblG = New System.Windows.Forms.Label()
-        Me.lblR = New System.Windows.Forms.Label()
         Me.cmbLEDCH = New System.Windows.Forms.ComboBox()
         CType(Me.pbxMainRaw, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.pbxProcessed, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -213,9 +214,9 @@ Partial Class MainWindow
         Me.Label4.AutoSize = True
         Me.Label4.Location = New System.Drawing.Point(14, 239)
         Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(30, 12)
+        Me.Label4.Size = New System.Drawing.Size(51, 12)
         Me.Label4.TabIndex = 13
-        Me.Label4.Text = "Path:"
+        Me.Label4.Text = "Save Dir:"
         '
         'Label5
         '
@@ -366,15 +367,6 @@ Partial Class MainWindow
         Me.lblExDiff.TabIndex = 6
         Me.lblExDiff.Text = "Diff:xxx piexl"
         '
-        'btnLightDemo
-        '
-        Me.btnLightDemo.Location = New System.Drawing.Point(414, 26)
-        Me.btnLightDemo.Name = "btnLightDemo"
-        Me.btnLightDemo.Size = New System.Drawing.Size(75, 23)
-        Me.btnLightDemo.TabIndex = 23
-        Me.btnLightDemo.Text = "DemoLight"
-        Me.btnLightDemo.UseVisualStyleBackColor = True
-        '
         'cbxPort
         '
         Me.cbxPort.FormattingEnabled = True
@@ -394,36 +386,36 @@ Partial Class MainWindow
         '
         'btnDemoR
         '
-        Me.btnDemoR.Location = New System.Drawing.Point(250, 26)
+        Me.btnDemoR.Location = New System.Drawing.Point(72, 61)
         Me.btnDemoR.Name = "btnDemoR"
-        Me.btnDemoR.Size = New System.Drawing.Size(35, 23)
+        Me.btnDemoR.Size = New System.Drawing.Size(46, 23)
         Me.btnDemoR.TabIndex = 26
         Me.btnDemoR.Text = "R"
         Me.btnDemoR.UseVisualStyleBackColor = True
         '
         'btnDemoG
         '
-        Me.btnDemoG.Location = New System.Drawing.Point(291, 26)
+        Me.btnDemoG.Location = New System.Drawing.Point(126, 61)
         Me.btnDemoG.Name = "btnDemoG"
-        Me.btnDemoG.Size = New System.Drawing.Size(35, 23)
+        Me.btnDemoG.Size = New System.Drawing.Size(46, 23)
         Me.btnDemoG.TabIndex = 26
         Me.btnDemoG.Text = "G"
         Me.btnDemoG.UseVisualStyleBackColor = True
         '
         'btnDemoB
         '
-        Me.btnDemoB.Location = New System.Drawing.Point(332, 26)
+        Me.btnDemoB.Location = New System.Drawing.Point(180, 61)
         Me.btnDemoB.Name = "btnDemoB"
-        Me.btnDemoB.Size = New System.Drawing.Size(35, 23)
+        Me.btnDemoB.Size = New System.Drawing.Size(46, 23)
         Me.btnDemoB.TabIndex = 26
         Me.btnDemoB.Text = "B"
         Me.btnDemoB.UseVisualStyleBackColor = True
         '
         'btnDemoW
         '
-        Me.btnDemoW.Location = New System.Drawing.Point(373, 26)
+        Me.btnDemoW.Location = New System.Drawing.Point(234, 61)
         Me.btnDemoW.Name = "btnDemoW"
-        Me.btnDemoW.Size = New System.Drawing.Size(35, 23)
+        Me.btnDemoW.Size = New System.Drawing.Size(46, 23)
         Me.btnDemoW.TabIndex = 26
         Me.btnDemoW.Text = "W"
         Me.btnDemoW.UseVisualStyleBackColor = True
@@ -515,131 +507,90 @@ Partial Class MainWindow
         Me.Label3.TabIndex = 6
         Me.Label3.Text = "CamImgSize"
         '
-        'tbxRGBDemo
-        '
-        Me.tbxRGBDemo.Location = New System.Drawing.Point(15, 28)
-        Me.tbxRGBDemo.Name = "tbxRGBDemo"
-        Me.tbxRGBDemo.Size = New System.Drawing.Size(100, 19)
-        Me.tbxRGBDemo.TabIndex = 28
-        Me.tbxRGBDemo.Text = "0,0,0"
-        '
-        'btnSetRGB
-        '
-        Me.btnSetRGB.Location = New System.Drawing.Point(121, 26)
-        Me.btnSetRGB.Name = "btnSetRGB"
-        Me.btnSetRGB.Size = New System.Drawing.Size(75, 23)
-        Me.btnSetRGB.TabIndex = 29
-        Me.btnSetRGB.Text = "Set"
-        Me.btnSetRGB.UseVisualStyleBackColor = True
-        '
         'gbxLED
         '
+        Me.gbxLED.Controls.Add(Me.rdnTable)
+        Me.gbxLED.Controls.Add(Me.rdnUpper)
+        Me.gbxLED.Controls.Add(Me.rdnLink)
+        Me.gbxLED.Controls.Add(Me.rdnSingle)
         Me.gbxLED.Controls.Add(Me.lblBrightness)
+        Me.gbxLED.Controls.Add(Me.lblB)
+        Me.gbxLED.Controls.Add(Me.lblG)
+        Me.gbxLED.Controls.Add(Me.lblR)
         Me.gbxLED.Controls.Add(Me.trbBrightness)
         Me.gbxLED.Controls.Add(Me.lblRGBFromROI)
         Me.gbxLED.Controls.Add(Me.btnRGBValueSave)
         Me.gbxLED.Controls.Add(Me.btnDemoOFF)
-        Me.gbxLED.Controls.Add(Me.tbxRGBDemo)
         Me.gbxLED.Controls.Add(Me.trbR)
         Me.gbxLED.Controls.Add(Me.trbG)
-        Me.gbxLED.Controls.Add(Me.btnSetRGB)
         Me.gbxLED.Controls.Add(Me.trbB)
         Me.gbxLED.Controls.Add(Me.btnDemoW)
-        Me.gbxLED.Controls.Add(Me.lblB)
         Me.gbxLED.Controls.Add(Me.btnDemoB)
-        Me.gbxLED.Controls.Add(Me.lblG)
         Me.gbxLED.Controls.Add(Me.btnDemoG)
-        Me.gbxLED.Controls.Add(Me.lblR)
         Me.gbxLED.Controls.Add(Me.btnDemoR)
         Me.gbxLED.Controls.Add(Me.cmbLEDCH)
-        Me.gbxLED.Controls.Add(Me.btnLightDemo)
         Me.gbxLED.Location = New System.Drawing.Point(527, 406)
         Me.gbxLED.Name = "gbxLED"
-        Me.gbxLED.Size = New System.Drawing.Size(508, 294)
+        Me.gbxLED.Size = New System.Drawing.Size(508, 306)
         Me.gbxLED.TabIndex = 32
         Me.gbxLED.TabStop = False
         Me.gbxLED.Text = "LED Manual Control"
         '
+        'rdnTable
+        '
+        Me.rdnTable.AutoSize = True
+        Me.rdnTable.Location = New System.Drawing.Point(377, 32)
+        Me.rdnTable.Name = "rdnTable"
+        Me.rdnTable.Size = New System.Drawing.Size(80, 16)
+        Me.rdnTable.TabIndex = 37
+        Me.rdnTable.Text = "Link(Table)"
+        Me.rdnTable.UseVisualStyleBackColor = True
+        '
+        'rdnUpper
+        '
+        Me.rdnUpper.AutoSize = True
+        Me.rdnUpper.Location = New System.Drawing.Point(281, 32)
+        Me.rdnUpper.Name = "rdnUpper"
+        Me.rdnUpper.Size = New System.Drawing.Size(82, 16)
+        Me.rdnUpper.TabIndex = 37
+        Me.rdnUpper.Text = "Link(Upper)"
+        Me.rdnUpper.UseVisualStyleBackColor = True
+        '
+        'rdnLink
+        '
+        Me.rdnLink.AutoSize = True
+        Me.rdnLink.Location = New System.Drawing.Point(201, 32)
+        Me.rdnLink.Name = "rdnLink"
+        Me.rdnLink.Size = New System.Drawing.Size(66, 16)
+        Me.rdnLink.TabIndex = 37
+        Me.rdnLink.Text = "Link(All)"
+        Me.rdnLink.UseVisualStyleBackColor = True
+        '
+        'rdnSingle
+        '
+        Me.rdnSingle.AutoSize = True
+        Me.rdnSingle.Checked = True
+        Me.rdnSingle.Location = New System.Drawing.Point(133, 32)
+        Me.rdnSingle.Name = "rdnSingle"
+        Me.rdnSingle.Size = New System.Drawing.Size(54, 16)
+        Me.rdnSingle.TabIndex = 37
+        Me.rdnSingle.TabStop = True
+        Me.rdnSingle.Text = "Single"
+        Me.rdnSingle.UseVisualStyleBackColor = True
+        '
         'lblBrightness
         '
         Me.lblBrightness.AutoSize = True
-        Me.lblBrightness.Location = New System.Drawing.Point(231, 104)
+        Me.lblBrightness.Location = New System.Drawing.Point(257, 109)
         Me.lblBrightness.Name = "lblBrightness"
-        Me.lblBrightness.Size = New System.Drawing.Size(11, 12)
+        Me.lblBrightness.Size = New System.Drawing.Size(17, 12)
         Me.lblBrightness.TabIndex = 36
-        Me.lblBrightness.Text = "1"
-        '
-        'trbBrightness
-        '
-        Me.trbBrightness.Location = New System.Drawing.Point(20, 92)
-        Me.trbBrightness.Maximum = 255
-        Me.trbBrightness.Minimum = 1
-        Me.trbBrightness.Name = "trbBrightness"
-        Me.trbBrightness.Size = New System.Drawing.Size(205, 45)
-        Me.trbBrightness.TabIndex = 35
-        Me.trbBrightness.Value = 1
-        '
-        'lblRGBFromROI
-        '
-        Me.lblRGBFromROI.AutoSize = True
-        Me.lblRGBFromROI.Location = New System.Drawing.Point(256, 176)
-        Me.lblRGBFromROI.Name = "lblRGBFromROI"
-        Me.lblRGBFromROI.Size = New System.Drawing.Size(53, 12)
-        Me.lblRGBFromROI.TabIndex = 34
-        Me.lblRGBFromROI.Text = "RGB,x,x,x"
-        '
-        'btnRGBValueSave
-        '
-        Me.btnRGBValueSave.Location = New System.Drawing.Point(258, 142)
-        Me.btnRGBValueSave.Name = "btnRGBValueSave"
-        Me.btnRGBValueSave.Size = New System.Drawing.Size(114, 23)
-        Me.btnRGBValueSave.TabIndex = 33
-        Me.btnRGBValueSave.Text = "Save Center RGB"
-        Me.btnRGBValueSave.UseVisualStyleBackColor = True
-        '
-        'btnDemoOFF
-        '
-        Me.btnDemoOFF.Location = New System.Drawing.Point(209, 26)
-        Me.btnDemoOFF.Name = "btnDemoOFF"
-        Me.btnDemoOFF.Size = New System.Drawing.Size(35, 23)
-        Me.btnDemoOFF.TabIndex = 32
-        Me.btnDemoOFF.Text = "OFF"
-        Me.btnDemoOFF.UseVisualStyleBackColor = True
-        '
-        'trbR
-        '
-        Me.trbR.Location = New System.Drawing.Point(20, 143)
-        Me.trbR.Maximum = 255
-        Me.trbR.Minimum = 1
-        Me.trbR.Name = "trbR"
-        Me.trbR.Size = New System.Drawing.Size(205, 45)
-        Me.trbR.TabIndex = 1
-        Me.trbR.Value = 1
-        '
-        'trbG
-        '
-        Me.trbG.Location = New System.Drawing.Point(20, 194)
-        Me.trbG.Maximum = 255
-        Me.trbG.Minimum = 1
-        Me.trbG.Name = "trbG"
-        Me.trbG.Size = New System.Drawing.Size(205, 45)
-        Me.trbG.TabIndex = 6
-        Me.trbG.Value = 1
-        '
-        'trbB
-        '
-        Me.trbB.Location = New System.Drawing.Point(20, 245)
-        Me.trbB.Maximum = 255
-        Me.trbB.Minimum = 1
-        Me.trbB.Name = "trbB"
-        Me.trbB.Size = New System.Drawing.Size(205, 45)
-        Me.trbB.TabIndex = 5
-        Me.trbB.Value = 1
+        Me.lblBrightness.Text = "64"
         '
         'lblB
         '
         Me.lblB.AutoSize = True
-        Me.lblB.Location = New System.Drawing.Point(231, 249)
+        Me.lblB.Location = New System.Drawing.Point(257, 254)
         Me.lblB.Name = "lblB"
         Me.lblB.Size = New System.Drawing.Size(11, 12)
         Me.lblB.TabIndex = 4
@@ -648,7 +599,7 @@ Partial Class MainWindow
         'lblG
         '
         Me.lblG.AutoSize = True
-        Me.lblG.Location = New System.Drawing.Point(231, 198)
+        Me.lblG.Location = New System.Drawing.Point(257, 203)
         Me.lblG.Name = "lblG"
         Me.lblG.Size = New System.Drawing.Size(11, 12)
         Me.lblG.TabIndex = 3
@@ -657,16 +608,79 @@ Partial Class MainWindow
         'lblR
         '
         Me.lblR.AutoSize = True
-        Me.lblR.Location = New System.Drawing.Point(231, 147)
+        Me.lblR.Location = New System.Drawing.Point(257, 152)
         Me.lblR.Name = "lblR"
         Me.lblR.Size = New System.Drawing.Size(11, 12)
         Me.lblR.TabIndex = 2
         Me.lblR.Text = "1"
         '
+        'trbBrightness
+        '
+        Me.trbBrightness.Location = New System.Drawing.Point(20, 97)
+        Me.trbBrightness.Maximum = 255
+        Me.trbBrightness.Name = "trbBrightness"
+        Me.trbBrightness.Size = New System.Drawing.Size(231, 45)
+        Me.trbBrightness.TabIndex = 35
+        Me.trbBrightness.Value = 64
+        '
+        'lblRGBFromROI
+        '
+        Me.lblRGBFromROI.AutoSize = True
+        Me.lblRGBFromROI.Location = New System.Drawing.Point(330, 194)
+        Me.lblRGBFromROI.Name = "lblRGBFromROI"
+        Me.lblRGBFromROI.Size = New System.Drawing.Size(53, 12)
+        Me.lblRGBFromROI.TabIndex = 34
+        Me.lblRGBFromROI.Text = "RGB,x,x,x"
+        '
+        'btnRGBValueSave
+        '
+        Me.btnRGBValueSave.Location = New System.Drawing.Point(298, 163)
+        Me.btnRGBValueSave.Name = "btnRGBValueSave"
+        Me.btnRGBValueSave.Size = New System.Drawing.Size(114, 23)
+        Me.btnRGBValueSave.TabIndex = 33
+        Me.btnRGBValueSave.Text = "Save Center RGB"
+        Me.btnRGBValueSave.UseVisualStyleBackColor = True
+        '
+        'btnDemoOFF
+        '
+        Me.btnDemoOFF.Location = New System.Drawing.Point(18, 61)
+        Me.btnDemoOFF.Name = "btnDemoOFF"
+        Me.btnDemoOFF.Size = New System.Drawing.Size(46, 23)
+        Me.btnDemoOFF.TabIndex = 32
+        Me.btnDemoOFF.Text = "OFF"
+        Me.btnDemoOFF.UseVisualStyleBackColor = True
+        '
+        'trbR
+        '
+        Me.trbR.Location = New System.Drawing.Point(20, 148)
+        Me.trbR.Maximum = 255
+        Me.trbR.Name = "trbR"
+        Me.trbR.Size = New System.Drawing.Size(231, 45)
+        Me.trbR.TabIndex = 1
+        Me.trbR.Value = 1
+        '
+        'trbG
+        '
+        Me.trbG.Location = New System.Drawing.Point(20, 199)
+        Me.trbG.Maximum = 255
+        Me.trbG.Name = "trbG"
+        Me.trbG.Size = New System.Drawing.Size(231, 45)
+        Me.trbG.TabIndex = 6
+        Me.trbG.Value = 1
+        '
+        'trbB
+        '
+        Me.trbB.Location = New System.Drawing.Point(20, 250)
+        Me.trbB.Maximum = 255
+        Me.trbB.Name = "trbB"
+        Me.trbB.Size = New System.Drawing.Size(231, 45)
+        Me.trbB.TabIndex = 5
+        Me.trbB.Value = 1
+        '
         'cmbLEDCH
         '
         Me.cmbLEDCH.FormattingEnabled = True
-        Me.cmbLEDCH.Location = New System.Drawing.Point(15, 59)
+        Me.cmbLEDCH.Location = New System.Drawing.Point(15, 29)
         Me.cmbLEDCH.Name = "cmbLEDCH"
         Me.cmbLEDCH.Size = New System.Drawing.Size(100, 20)
         Me.cmbLEDCH.TabIndex = 0
@@ -728,7 +742,6 @@ Partial Class MainWindow
     Friend WithEvents btnSaveWithSettings As Button
     Friend WithEvents cbxFlip As CheckBox
     Friend WithEvents lblExDiff As Label
-    Friend WithEvents btnLightDemo As Button
     Friend WithEvents cbxPort As ComboBox
     Friend WithEvents btnOpenClose As Button
     Friend WithEvents btnDemoR As Button
@@ -736,8 +749,6 @@ Partial Class MainWindow
     Friend WithEvents btnDemoB As Button
     Friend WithEvents btnDemoW As Button
     Friend WithEvents gbxCollect As GroupBox
-    Friend WithEvents tbxRGBDemo As TextBox
-    Friend WithEvents btnSetRGB As Button
     Friend WithEvents cmbCamImgSize As ComboBox
     Friend WithEvents Label3 As Label
     Friend WithEvents gbxLED As GroupBox
@@ -756,4 +767,8 @@ Partial Class MainWindow
     Friend WithEvents Label8 As Label
     Friend WithEvents trbBrightness As TrackBar
     Friend WithEvents lblBrightness As Label
+    Friend WithEvents rdnTable As RadioButton
+    Friend WithEvents rdnUpper As RadioButton
+    Friend WithEvents rdnLink As RadioButton
+    Friend WithEvents rdnSingle As RadioButton
 End Class

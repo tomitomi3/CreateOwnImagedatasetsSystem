@@ -65,7 +65,10 @@ Public Class MainWindow
     Private _thread As System.Threading.Thread = Nothing
 
     ''' <summary>スレッド同期(CS)</summary>
-    Private objlock = New Object()
+    Private _capLock = New Object()
+
+    ''' <summary>LED非同期制御</summary>
+    Private _ledLock = New Object()
 
     ''' <summary>クリック位置</summary>
     Private _clickedPos As New Point(0, 0)
@@ -98,11 +101,11 @@ Public Class MainWindow
 
     Private _isColor = True
 
+    ''' <summary>LED Controler</summary>
+    Private _ledPatternGen As GenLEDPattern = Nothing
+
     ''' <summary>elapsed time per 1 capture</summary>
     Private _elapsedTime As Double = 0.0
-
-    ''' <summary>To Send Arduino data</summary>
-    Private _sendData As New List(Of Byte)
 
     ''' <summary>serial port class</summary>
     Private oSerialPort As SerialPort = Nothing
@@ -203,7 +206,7 @@ Public Class MainWindow
                     'update
                     'Get image
                     Dim clipEditMat As Mat = Nothing
-                    SyncLock objlock
+                    SyncLock _capLock
                         Me.GetClipImageFromCameraImage(mat, clipEditMat, Me._rawClipMat, Me._rawClipExMat)
                     End SyncLock
 
@@ -393,7 +396,7 @@ Public Class MainWindow
     ''' <summary>
     ''' Send data to Arduino
     ''' </summary>
-    Private Sub SendArduinoWithCheckSum()
+    Private Sub SendArduinoWithCheckSum(ByVal _sendData As List(Of Byte))
         If oSerialPort.IsOpen = False Then
             Return
         End If
@@ -423,28 +426,9 @@ Public Class MainWindow
 
         'write
         oSerialPort.Write(allSendByte.ToArray, 0, allSendByte.Count)
-        Dim waitMs = CInt((allSendByte.Count * 1000) / (Me.oSerialPort.BaudRate / 8) * 1.5) + 20
+        Dim waitMs = CInt((allSendByte.Count * 1000) / (Me.oSerialPort.BaudRate / 8) * 1.5) + 20 'wait
         System.Threading.Thread.Sleep(waitMs)
     End Sub
-
-    ''' <summary>
-    ''' 1CHのLED制御
-    ''' </summary>
-    ''' <param name="brightness"></param>
-    ''' <param name="ch"></param>
-    ''' <param name="r"></param>
-    ''' <param name="g"></param>
-    ''' <param name="b"></param>
-    Private Sub SendLightLED(ByVal brightness As Integer, ByVal ch As Integer, ByVal r As Integer, ByVal g As Integer, ByVal b As Integer)
-        _sendData.Clear()
-        _sendData.Add(brightness)
-        _sendData.Add(ch)
-        _sendData.Add(r)
-        _sendData.Add(g)
-        _sendData.Add(b)
-        SendArduinoWithCheckSum()
-    End Sub
-
 #End Region
 
 #Region "Public event"
@@ -542,6 +526,11 @@ Public Class MainWindow
             cmbLEDCH.Items.Add(String.Format("CH{0}", i))
         Next
         cmbLEDCH.SelectedIndex = 1
+
+        'LED Controlの初期化
+        Me._ledPatternGen = New GenLEDPattern()
+        Me._ledPatternGen.NUM_OF_LED = 5
+        Me._ledPatternGen.Brightness = 64
 
         'UI
         Me.btnOpenClose.Enabled = True
@@ -662,7 +651,7 @@ Public Class MainWindow
         If _cap Is Nothing Then
             'open cap
             _thread = New Threading.Thread(AddressOf Worker)
-            _thread.Priority = System.Threading.ThreadPriority.Highest
+            '_thread.Priority = System.Threading.ThreadPriority.Highest
             _thread.Name = "Cap Thread"
             _thread.Start()
 
@@ -788,16 +777,15 @@ Public Class MainWindow
                 sleepTime = sleepTime * Integer.Parse(Me.tbxAverage.Text) + 300
             End If
             Await Task.Run(Sub()
-                               Dim patterns = GenP()
+                               Dim patterns = _ledPatternGen.GetPattern()
                                For Each p In patterns
                                    'LED pattern
-                                   _sendData = p.ToList()
-                                   SendArduinoWithCheckSum()
+                                   SendArduinoWithCheckSum(p)
 
                                    'sleep
                                    System.Threading.Thread.Sleep(sleepTime)
 
-                                   SyncLock objlock
+                                   SyncLock _capLock
                                        ip.InputMat = Me._rawClipExMat.Clone()
                                    End SyncLock
                                    Dim saveMats = ip.GetMats()
@@ -805,19 +793,18 @@ Public Class MainWindow
                                        Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
                                        saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
                                    Next
-
-                                   '砂時計防止
-                                   Application.DoEvents()
                                Next
                            End Sub)
 
+
+
             'LED OFF
-            _sendData = Me.GetInitSendData().ToList()
-            SendArduinoWithCheckSum()
+            Dim tempByte = GenLEDPattern.GetInitSendData(Me._ledPatternGen.NUM_OF_LED, Me._ledPatternGen.Brightness)
+            SendArduinoWithCheckSum(tempByte)
         Else
             'No LED control
             Await Task.Run(Sub()
-                               SyncLock objlock
+                               SyncLock _capLock
                                    ip.InputMat = Me._rawClipExMat.Clone()
                                End SyncLock
                                Dim saveMats = ip.GetMats()
@@ -827,145 +814,6 @@ Public Class MainWindow
                                Next
                            End Sub)
         End If
-    End Sub
-
-    Private Function GetInitSendData() As Byte()
-        Dim size = (1 + SIZE_CH_COLOR * NUM_OF_LED) - 1
-        Dim tempBytes(size) As Byte
-        tempBytes(IDX_BRIGHTNESS) = _LightBrightness
-        tempBytes(IDX_CH0) = 0
-        tempBytes(IDX_CH1) = 1
-        tempBytes(IDX_CH2) = 2
-        tempBytes(IDX_CH3) = 3
-        tempBytes(IDX_CH4) = 4
-
-        Return tempBytes
-    End Function
-
-    Private Function GenP() As List(Of Byte())
-        Dim colorPattern = New List(Of Byte())
-        Dim size = (1 + SIZE_CH_COLOR * NUM_OF_LED) - 1
-
-        '何もなし
-        With Nothing
-            Dim tempBytes = GetInitSendData()
-            colorPattern.Add(tempBytes)
-        End With
-
-        'table
-        With Nothing
-            Dim tempBytes = GetInitSendData()
-            tempBytes(IDX_CH4 + 1) = 64
-            tempBytes(IDX_CH4 + 2) = 128
-            tempBytes(IDX_CH4 + 3) = 96
-            colorPattern.Add(tempBytes)
-        End With
-
-        '上
-        With Nothing
-            Dim tempBytes = GetInitSendData()
-            tempBytes(IDX_CH0 + 1) = 128
-            tempBytes(IDX_CH0 + 2) = 0
-            tempBytes(IDX_CH0 + 3) = 0
-            tempBytes(IDX_CH1 + 1) = 128
-            tempBytes(IDX_CH1 + 2) = 0
-            tempBytes(IDX_CH1 + 3) = 0
-            tempBytes(IDX_CH4 + 1) = 64
-            tempBytes(IDX_CH4 + 2) = 128
-            tempBytes(IDX_CH4 + 3) = 96
-            colorPattern.Add(tempBytes)
-        End With
-
-        With Nothing
-            Dim tempBytes = GetInitSendData()
-            tempBytes(IDX_CH0 + 1) = 0
-            tempBytes(IDX_CH0 + 2) = 128
-            tempBytes(IDX_CH0 + 3) = 0
-            tempBytes(IDX_CH1 + 1) = 0
-            tempBytes(IDX_CH1 + 2) = 128
-            tempBytes(IDX_CH1 + 3) = 0
-            tempBytes(IDX_CH4 + 1) = 64
-            tempBytes(IDX_CH4 + 2) = 128
-            tempBytes(IDX_CH4 + 3) = 96
-            colorPattern.Add(tempBytes)
-        End With
-
-        With Nothing
-            Dim tempBytes = GetInitSendData()
-            tempBytes(IDX_CH0 + 1) = 0
-            tempBytes(IDX_CH0 + 2) = 0
-            tempBytes(IDX_CH0 + 3) = 128
-            tempBytes(IDX_CH1 + 1) = 0
-            tempBytes(IDX_CH1 + 2) = 0
-            tempBytes(IDX_CH1 + 3) = 128
-            tempBytes(IDX_CH4 + 1) = 64
-            tempBytes(IDX_CH4 + 2) = 128
-            tempBytes(IDX_CH4 + 3) = 96
-            colorPattern.Add(tempBytes)
-        End With
-
-        Return colorPattern
-    End Function
-
-    Private Const NUM_OF_LED As Integer = 5
-    Private _LightBrightness As Byte = 255
-    Private Const LightStep As Byte = 32
-    Private Const SIZE_CH_COLOR As Integer = 4
-
-    Private Const IDX_BRIGHTNESS As Integer = 0
-    Private Const IDX_CH0 As Integer = 1
-    Private Const IDX_CH1 As Integer = IDX_CH0 + SIZE_CH_COLOR
-    Private Const IDX_CH2 As Integer = IDX_CH1 + SIZE_CH_COLOR
-    Private Const IDX_CH3 As Integer = IDX_CH2 + SIZE_CH_COLOR
-    Private Const IDX_CH4 As Integer = IDX_CH3 + SIZE_CH_COLOR
-
-    ''' <summary>
-    ''' NeoPixelパターン生成
-    ''' </summary>
-    Private Function GenLigthtPattern() As List(Of Byte())
-        Dim colorPattern = New List(Of Byte())
-        Dim roundNum As Integer = ((Byte.MaxValue / LightStep) + 0.5)
-        For r As Integer = 0 To roundNum - 1
-            For g As Integer = 0 To roundNum - 1
-                For b As Integer = 0 To roundNum - 1
-                    Dim singleRGB As New List(Of Byte)
-                    singleRGB.Add(r * LightStep)
-                    singleRGB.Add(g * LightStep)
-                    singleRGB.Add(b * LightStep)
-                    colorPattern.Add(singleRGB.ToArray())
-                Next
-            Next
-        Next
-        Return colorPattern
-    End Function
-
-    Private Sub InitSendData()
-        '初期化
-        _sendData.Clear()
-        For i As Integer = 0 To (1 + SIZE_CH_COLOR * NUM_OF_LED) - 1
-            _sendData.Add(0)
-        Next
-    End Sub
-
-    Private Sub btnLightDemo_Click(sender As Object, e As EventArgs) Handles btnLightDemo.Click
-        Dim ret = GenLigthtPattern()
-
-        'Color
-        '             0   R  G  B  0   R  G  B
-        '[Brightness][CH][R][G][B][CH][R][G][B]
-        InitSendData()
-        _sendData(IDX_BRIGHTNESS) = _LightBrightness
-        For Each c In ret
-            For i As Integer = 0 To NUM_OF_LED - 1
-                Dim idx = IDX_CH0 + SIZE_CH_COLOR * i
-                _sendData(idx) = i
-                _sendData(idx + 1) = c(0)
-                _sendData(idx + 2) = c(1)
-                _sendData(idx + 3) = c(2)
-            Next
-            SendArduinoWithCheckSum()
-            Application.DoEvents()
-        Next
     End Sub
 
     Private Sub cbxLightCtrl_CheckedChanged(sender As Object, e As EventArgs) Handles cbxLightCtrl.CheckedChanged
@@ -984,82 +832,109 @@ Public Class MainWindow
         End If
     End Sub
 
-    Private Sub btnSetRGB_Click(sender As Object, e As EventArgs) Handles btnSetRGB.Click
-        'byte
-        Dim split = Me.tbxRGBDemo.Text.Split(",")
-        If split.Count <> 3 Then
+    ''' <summary>
+    ''' 非同期でLED制御
+    ''' </summary>
+    Private Async Sub SendLEDSignal()
+        If Me._ledPatternGen Is Nothing Then
             Return
         End If
 
-        InitSendData()
-        _sendData(IDX_BRIGHTNESS) = _LightBrightness
-        For i As Integer = 0 To NUM_OF_LED - 1
-            Dim idx = IDX_CH0 + SIZE_CH_COLOR * i
-            _sendData(idx) = i
-            _sendData(idx + 1) = split(0)
-            _sendData(idx + 2) = split(1)
-            _sendData(idx + 3) = split(2)
-        Next
-        SendArduinoWithCheckSum()
+        Dim tempBytes As New List(Of Byte)
+        Me._ledPatternGen.Brightness = Me.trbBrightness.Value
+        If Me.rdnSingle.Checked Then
+            tempBytes = Me._ledPatternGen.GenSinglePattern(Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
+        ElseIf Me.rdnLink.Checked Then
+            tempBytes = GenLEDPattern.GenSamePattern(Me._ledPatternGen.NUM_OF_LED, Me._ledPatternGen.Brightness,
+                                                    trbR.Value, trbG.Value, trbB.Value)
+        ElseIf Me.rdnUpper.Checked Then
+            tempBytes = GenLEDPattern.GenSamePattern(Me._ledPatternGen.NUM_OF_LED - 1, Me._ledPatternGen.Brightness,
+                                                    trbR.Value, trbG.Value, trbB.Value)
+        ElseIf Me.rdnTable.Checked Then
+            tempBytes = Me._ledPatternGen.GenSinglePattern(Me._ledPatternGen.NUM_OF_LED - 1, trbR.Value, trbG.Value, trbB.Value)
+        End If
+
+        Await Task.Run(Sub()
+                           SyncLock _ledLock
+                               Me.SendArduinoWithCheckSum(tempBytes)
+                           End SyncLock
+                       End Sub)
     End Sub
 
     Private Sub btnDemoOFF_Click(sender As Object, e As EventArgs) Handles btnDemoOFF.Click
-        Me.tbxRGBDemo.Text = "0,0,0"
+        Me.trbBrightness.Value = 0
     End Sub
 
     Private Sub btnDemoR_Click(sender As Object, e As EventArgs) Handles btnDemoR.Click
-        Me.tbxRGBDemo.Text = "255,0,0"
+        Me.trbR.Value = 128
+        Me.trbG.Value = 0
+        Me.trbB.Value = 0
     End Sub
 
     Private Sub btnDemoG_Click(sender As Object, e As EventArgs) Handles btnDemoG.Click
-        Me.tbxRGBDemo.Text = "0,255,0"
+        Me.trbR.Value = 0
+        Me.trbG.Value = 128
+        Me.trbB.Value = 0
     End Sub
 
     Private Sub btnDemoB_Click(sender As Object, e As EventArgs) Handles btnDemoB.Click
-        Me.tbxRGBDemo.Text = "0,0,255"
+        Me.trbR.Value = 0
+        Me.trbG.Value = 0
+        Me.trbB.Value = 128
     End Sub
 
     Private Sub btnDemoW_Click(sender As Object, e As EventArgs) Handles btnDemoW.Click
-        Me.tbxRGBDemo.Text = "255,255,255"
+        Me.trbR.Value = 128
+        Me.trbG.Value = 160
+        Me.trbB.Value = 130
+    End Sub
+
+    Private Sub trbBrightness_ValueChanged(sender As Object, e As EventArgs) Handles trbBrightness.ValueChanged
+        If Me._ledPatternGen Is Nothing Then
+            Return
+        End If
+        Me._ledPatternGen.Brightness = Me.trbBrightness.Value
+        Me.lblBrightness.Text = trbBrightness.Value.ToString()
+        Me.SendLEDSignal()
+    End Sub
+
+    Private Sub trbR_ValueChanged(sender As Object, e As EventArgs) Handles trbR.ValueChanged
+        If Me._ledPatternGen Is Nothing Then
+            Return
+        End If
+        Me.lblR.Text = trbR.Value.ToString()
+        Me.lblBrightness.Text = trbBrightness.Value.ToString()
+        Me.SendLEDSignal()
+    End Sub
+
+    Private Sub trbG_ValueChanged(sender As Object, e As EventArgs) Handles trbG.ValueChanged
+        If Me._ledPatternGen Is Nothing Then
+            Return
+        End If
+        Me.lblG.Text = trbG.Value.ToString()
+        Me.lblBrightness.Text = trbBrightness.Value.ToString()
+        Me.SendLEDSignal()
+    End Sub
+
+    Private Sub trbB_ValueChanged(sender As Object, e As EventArgs) Handles trbB.ValueChanged
+        If Me._ledPatternGen Is Nothing Then
+            Return
+        End If
+        Me.lblB.Text = trbB.Value.ToString()
+        Me.lblBrightness.Text = trbBrightness.Value.ToString()
+        Me.SendLEDSignal()
     End Sub
 
     ''' <summary>
-    ''' トラックバー 輝度
+    ''' debug clipの中心RGB値を保存
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
-    Private Sub trbBrightness_Scroll(sender As Object, e As EventArgs) Handles trbBrightness.Scroll
-        Me._LightBrightness = Integer.Parse(Me.trbBrightness.Value)
-        Me.lblBrightness.Text = trbBrightness.Value.ToString()
-        Me.SendLightLED(_LightBrightness, Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
-        Me.SendArduinoWithCheckSum()
-    End Sub
-
-    Private Sub tbrR_Scroll(sender As Object, e As EventArgs) Handles trbR.Scroll
-        Me.lblR.Text = trbR.Value.ToString()
-        Me.SendLightLED(_LightBrightness, Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
-        Me.SendArduinoWithCheckSum()
-    End Sub
-
-    Private Sub tbrG_Scroll(sender As Object, e As EventArgs) Handles trbG.Scroll
-        Me.lblG.Text = trbG.Value.ToString()
-        Me.SendLightLED(_LightBrightness, Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
-        Me.SendArduinoWithCheckSum()
-    End Sub
-
-    Private Sub tbgB_Scroll(sender As Object, e As EventArgs) Handles trbB.Scroll
-        Me.lblB.Text = trbB.Value.ToString()
-        Me.SendLightLED(_LightBrightness, Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
-        Me.SendArduinoWithCheckSum()
-    End Sub
-
     Private Sub btnRGBValueSave_Click(sender As Object, e As EventArgs) Handles btnRGBValueSave.Click
         Dim temp = lblRGBFromROI.Text.Split(",")
         Using writer As StreamWriter = New StreamWriter("RGBVALUE_DEBUG.txt", append:=True, encoding:=Encoding.GetEncoding("Shift_JIS"))
             writer.WriteLine("{0},{1},{2},{3},{4},{5}", trbR.Value, trbG.Value, trbB.Value, temp(1), temp(2), temp(3))
         End Using
     End Sub
-
-
 #End Region
 End Class
