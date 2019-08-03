@@ -91,6 +91,8 @@ Public Class MainWindow
     ''' <summary>加算平均回数</summary>
     Private _avgCount As Byte = 0
 
+    Private _exRatio As Double = 1.5
+
     Private _clipSizeEx As Integer = 0
 
     Private _clipSize As Integer = 0
@@ -687,7 +689,7 @@ Public Class MainWindow
                 Me._clipSize = CInt(tempVal)
             End If
         Next
-        Me._clipSizeEx = CInt(Me._clipSize * 1.5 + 0.5)
+        Me._clipSizeEx = CInt(Me._clipSize * Me._exRatio + 0.5)
         Dim diff As Integer = _clipSizeEx - _clipSize
         Me.lblExDiff.Text = String.Format("Diff: {0} [pixel]", diff)
     End Sub

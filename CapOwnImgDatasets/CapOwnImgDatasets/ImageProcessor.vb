@@ -62,7 +62,9 @@ Public Class ImageProcesser
             Dim numRotate As Integer = (359 / Me.RotationStep - 0.5)
             For i As Integer = 1 To numRotate - 1
                 Using dst As New Mat()
+                    '回転に対して少しのランダム性を加える
                     Dim stepAngle = i * Me.RotationStep
+                    stepAngle += Util.XorShiftSingleton.GetInstance().Next(0, 2)
                     Dim center As New Point2f(InputMat.Width / 2.0, InputMat.Height / 2.0)
                     Dim rotationMat = Cv2.GetRotationMatrix2D(center, stepAngle, 1.0)
                     Cv2.WarpAffine(InputMat, dst, rotationMat, InputMat.Size())
@@ -76,11 +78,10 @@ Public Class ImageProcesser
         'Move
         '----------------------------------------
         If IsMove = True Then
-            Dim rnd As New Random(System.DateTime.Now.Millisecond) '一様分布でランダム移動
             For i As Integer = 0 To Me.NumOfMove - 1
                 'ランダムに平行移動
-                Dim tempX = rnd.Next(0, diffSize)
-                Dim tempY = rnd.Next(0, diffSize)
+                Dim tempX = Util.XorShiftSingleton.GetInstance().Next(0, diffSize)
+                Dim tempY = Util.XorShiftSingleton.GetInstance().Next(0, diffSize)
                 Dim tempRect = New Rect(New Point(tempX, tempY), New Size(Me.ClipSize, Me.ClipSize))
                 Dim resizedMat = Me.ResizeAndColor(InputMat(tempRect))
                 retMats.Add(resizedMat)

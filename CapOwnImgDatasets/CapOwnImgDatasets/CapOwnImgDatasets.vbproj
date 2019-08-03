@@ -122,6 +122,7 @@
     </Compile>
     <Compile Include="SaveImageUtili.vb" />
     <Compile Include="SettingFile.vb" />
+    <Compile Include="XorShift.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="MainWindow.resx">
