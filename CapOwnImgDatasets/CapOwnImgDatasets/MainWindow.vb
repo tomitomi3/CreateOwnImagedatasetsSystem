@@ -396,8 +396,12 @@ Public Class MainWindow
     ''' <summary>
     ''' Send data to Arduino
     ''' </summary>
-    Private Sub SendArduinoWithCheckSum(ByVal _sendData As List(Of Byte))
+    Private Sub SendArduinoWithCheckSum(ByVal _sendData As List(Of Byte), Optional ByVal flg As Boolean = True)
         If oSerialPort.IsOpen = False Then
+            Return
+        End If
+
+        If flg = False Then
             Return
         End If
 
@@ -426,7 +430,7 @@ Public Class MainWindow
 
         'write
         oSerialPort.Write(allSendByte.ToArray, 0, allSendByte.Count)
-        Dim waitMs = CInt((allSendByte.Count * 1000) / (Me.oSerialPort.BaudRate / 8) * 1.5) + 20 'wait
+        Dim waitMs = CInt((allSendByte.Count * 1000) / (Me.oSerialPort.BaudRate / 8) * 1.5) + 40 'wait
         System.Threading.Thread.Sleep(waitMs)
     End Sub
 #End Region
@@ -859,6 +863,8 @@ Public Class MainWindow
         End If
         Return tempBytes
     End Function
+
+    Private _count As Integer = 0
 
     ''' <summary>
     ''' LED制御
