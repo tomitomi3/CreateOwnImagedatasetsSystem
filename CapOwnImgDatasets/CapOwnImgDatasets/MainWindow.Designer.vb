@@ -65,6 +65,9 @@ Partial Class MainWindow
         Me.cmbCamImgSize = New System.Windows.Forms.ComboBox()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.gbxLED = New System.Windows.Forms.GroupBox()
+        Me.btnBack = New System.Windows.Forms.Button()
+        Me.btnPatternTest = New System.Windows.Forms.Button()
+        Me.btnRegister = New System.Windows.Forms.Button()
         Me.rdnTable = New System.Windows.Forms.RadioButton()
         Me.rdnUpper = New System.Windows.Forms.RadioButton()
         Me.rdnLink = New System.Windows.Forms.RadioButton()
@@ -81,9 +84,6 @@ Partial Class MainWindow
         Me.trbG = New System.Windows.Forms.TrackBar()
         Me.trbB = New System.Windows.Forms.TrackBar()
         Me.cmbLEDCH = New System.Windows.Forms.ComboBox()
-        Me.btnRegister = New System.Windows.Forms.Button()
-        Me.btnPatternTest = New System.Windows.Forms.Button()
-        Me.btnBack = New System.Windows.Forms.Button()
         CType(Me.pbxMainRaw, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.pbxProcessed, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox2.SuspendLayout()
@@ -542,6 +542,33 @@ Partial Class MainWindow
         Me.gbxLED.TabStop = False
         Me.gbxLED.Text = "LED Manual Control"
         '
+        'btnBack
+        '
+        Me.btnBack.Location = New System.Drawing.Point(320, 170)
+        Me.btnBack.Name = "btnBack"
+        Me.btnBack.Size = New System.Drawing.Size(114, 23)
+        Me.btnBack.TabIndex = 40
+        Me.btnBack.Text = "Back"
+        Me.btnBack.UseVisualStyleBackColor = True
+        '
+        'btnPatternTest
+        '
+        Me.btnPatternTest.Location = New System.Drawing.Point(320, 207)
+        Me.btnPatternTest.Name = "btnPatternTest"
+        Me.btnPatternTest.Size = New System.Drawing.Size(114, 23)
+        Me.btnPatternTest.TabIndex = 39
+        Me.btnPatternTest.Text = "Test"
+        Me.btnPatternTest.UseVisualStyleBackColor = True
+        '
+        'btnRegister
+        '
+        Me.btnRegister.Location = New System.Drawing.Point(320, 134)
+        Me.btnRegister.Name = "btnRegister"
+        Me.btnRegister.Size = New System.Drawing.Size(114, 23)
+        Me.btnRegister.TabIndex = 38
+        Me.btnRegister.Text = "Register"
+        Me.btnRegister.UseVisualStyleBackColor = True
+        '
         'rdnTable
         '
         Me.rdnTable.AutoSize = True
@@ -691,38 +718,11 @@ Partial Class MainWindow
         Me.cmbLEDCH.Size = New System.Drawing.Size(100, 20)
         Me.cmbLEDCH.TabIndex = 0
         '
-        'btnRegister
-        '
-        Me.btnRegister.Location = New System.Drawing.Point(320, 134)
-        Me.btnRegister.Name = "btnRegister"
-        Me.btnRegister.Size = New System.Drawing.Size(114, 23)
-        Me.btnRegister.TabIndex = 38
-        Me.btnRegister.Text = "Register"
-        Me.btnRegister.UseVisualStyleBackColor = True
-        '
-        'btnPatternTest
-        '
-        Me.btnPatternTest.Location = New System.Drawing.Point(320, 207)
-        Me.btnPatternTest.Name = "btnPatternTest"
-        Me.btnPatternTest.Size = New System.Drawing.Size(114, 23)
-        Me.btnPatternTest.TabIndex = 39
-        Me.btnPatternTest.Text = "Test"
-        Me.btnPatternTest.UseVisualStyleBackColor = True
-        '
-        'btnBack
-        '
-        Me.btnBack.Location = New System.Drawing.Point(320, 170)
-        Me.btnBack.Name = "btnBack"
-        Me.btnBack.Size = New System.Drawing.Size(114, 23)
-        Me.btnBack.TabIndex = 40
-        Me.btnBack.Text = "Back"
-        Me.btnBack.UseVisualStyleBackColor = True
-        '
         'MainWindow
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1140, 748)
+        Me.ClientSize = New System.Drawing.Size(1054, 748)
         Me.Controls.Add(Me.gbxCollect)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox3)

@@ -36,7 +36,7 @@ Public Class SettingFile
     Public Sub Update()
         Using sw As New System.IO.StreamWriter(SETTINGPATH, False, System.Text.Encoding.GetEncoding("shift_jis"))
             Dim setting = SettingFile.GetInstance()
-            Dim output As String = JsonConvert.SerializeObject(setting)
+            Dim output As String = JsonConvert.SerializeObject(setting, Formatting.Indented)
             sw.Write(output)
         End Using
     End Sub
@@ -49,12 +49,14 @@ Public Class SettingFile
             Return
         End If
 
+        Dim readJson = New System.Text.StringBuilder()
         Using sw As New System.IO.StreamReader(SETTINGPATH, System.Text.Encoding.GetEncoding("shift_jis"))
-            Dim temp = sw.ReadLine()
-            If String.IsNullOrEmpty(temp) = True Then
-                Return
-            End If
-            SettingFile._settings = JsonConvert.DeserializeObject(Of SettingFile)(temp)
+            While (sw.EndOfStream = False)
+                Dim temp = sw.ReadLine()
+                readJson.Append(temp)
+            End While
         End Using
+        Dim tempJson = readJson.ToString()
+        SettingFile._settings = JsonConvert.DeserializeObject(Of SettingFile)(tempJson)
     End Sub
 End Class

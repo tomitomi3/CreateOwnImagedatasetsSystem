@@ -27,7 +27,7 @@ Public Class LEDPatternSets
     Public Sub Update()
         Using sw As New System.IO.StreamWriter(SETTINGPATH, False, System.Text.Encoding.GetEncoding("shift_jis"))
             Dim setting = LEDPatternSets.GetInstance()
-            Dim output As String = JsonConvert.SerializeObject(setting)
+            Dim output As String = JsonConvert.SerializeObject(setting, Formatting.Indented)
             sw.Write(output)
         End Using
     End Sub
@@ -40,12 +40,14 @@ Public Class LEDPatternSets
             Return
         End If
 
+        Dim readJson = New System.Text.StringBuilder()
         Using sw As New System.IO.StreamReader(SETTINGPATH, System.Text.Encoding.GetEncoding("shift_jis"))
-            Dim temp = sw.ReadLine()
-            If String.IsNullOrEmpty(temp) = True Then
-                Return
-            End If
-            LEDPatternSets._pattern = JsonConvert.DeserializeObject(Of LEDPatternSets)(temp)
+            While (sw.EndOfStream = False)
+                Dim temp = sw.ReadLine()
+                readJson.Append(temp)
+            End While
         End Using
+        Dim tempJson = readJson.ToString()
+        LEDPatternSets._pattern = JsonConvert.DeserializeObject(Of LEDPatternSets)(tempJson)
     End Sub
 End Class
