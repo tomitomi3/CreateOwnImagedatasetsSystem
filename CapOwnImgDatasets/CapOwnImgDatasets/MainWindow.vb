@@ -118,75 +118,92 @@ Public Class MainWindow
     ''' <summary>
     ''' Initialize camera
     ''' </summary>
-    Private Sub InitCam()
-        If _cap IsNot Nothing Then
-            Return
-        End If
+    Private Function InitCam() As Boolean
+        Try
+            If _cap IsNot Nothing Then
+                Return True
+            End If
 
-        'Camera IDからキャプチャ
-        Dim camId = 0
-        Me.Invoke(
-                    Sub()
-                        camId = CInt(Me.cmbCamID.SelectedItem.ToString())
-                    End Sub
-                    )
-        Me._cap = New OpenCvSharp.VideoCapture(camId)
+            'Camera IDからキャプチャ
+            Dim camId = 0
+            Me.Invoke(
+                        Sub()
+                            camId = CInt(Me.cmbCamID.SelectedItem.ToString())
+                        End Sub
+                        )
+            Me._cap = New OpenCvSharp.VideoCapture(camId)
 
-        'ここはUSBカメラによって適宜設定する
-        Dim selectCamImgIndex = -1
-        Me.Invoke(
-                    Sub()
-                        selectCamImgIndex = Me.cmbCamImgSize.SelectedIndex
+            'ここはUSBカメラによって適宜設定する
+            Dim selectCamImgIndex = -1
+            Me.Invoke(
+                        Sub()
+                            selectCamImgIndex = Me.cmbCamImgSize.SelectedIndex
 
-                        If EnumCameraImgSize.Size640x480 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                            _cap.Set(CaptureProperty.FrameWidth, 640)
-                            _cap.Set(CaptureProperty.FrameHeight, 480)
-                        ElseIf EnumCameraImgSize.Size800x600 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                            _cap.Set(CaptureProperty.FrameWidth, 800)
-                            _cap.Set(CaptureProperty.FrameHeight, 600)
-                        ElseIf EnumCameraImgSize.Size1280x720 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                            _cap.Set(CaptureProperty.FrameWidth, 1280)
-                            _cap.Set(CaptureProperty.FrameHeight, 720)
-                        ElseIf EnumCameraImgSize.Size1280x960 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                            _cap.Set(CaptureProperty.FrameWidth, 1280)
-                            _cap.Set(CaptureProperty.FrameHeight, 960)
-                        ElseIf EnumCameraImgSize.Size1280x1024 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                            _cap.Set(CaptureProperty.FrameWidth, 1280)
-                            _cap.Set(CaptureProperty.FrameHeight, 1024)
-                        ElseIf EnumCameraImgSize.Size1600x1200 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                            _cap.Set(CaptureProperty.FrameWidth, 1600)
-                            _cap.Set(CaptureProperty.FrameHeight, 1200)
-                        ElseIf EnumCameraImgSize.Size1920x1080 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                            _cap.Set(CaptureProperty.FrameWidth, 1920)
-                            _cap.Set(CaptureProperty.FrameHeight, 1080)
-                        ElseIf EnumCameraImgSize.Size1920x1200 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                            _cap.Set(CaptureProperty.FrameWidth, 1920)
-                            _cap.Set(CaptureProperty.FrameHeight, 1200)
-                        ElseIf EnumCameraImgSize.Size2048x1536 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                            _cap.Set(CaptureProperty.FrameWidth, 2048)
-                            _cap.Set(CaptureProperty.FrameHeight, 1536)
-                        End If
+                            If EnumCameraImgSize.Size640x480 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                                _cap.Set(CaptureProperty.FrameWidth, 640)
+                                _cap.Set(CaptureProperty.FrameHeight, 480)
+                            ElseIf EnumCameraImgSize.Size800x600 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                                _cap.Set(CaptureProperty.FrameWidth, 800)
+                                _cap.Set(CaptureProperty.FrameHeight, 600)
+                            ElseIf EnumCameraImgSize.Size1280x720 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                                _cap.Set(CaptureProperty.FrameWidth, 1280)
+                                _cap.Set(CaptureProperty.FrameHeight, 720)
+                            ElseIf EnumCameraImgSize.Size1280x960 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                                _cap.Set(CaptureProperty.FrameWidth, 1280)
+                                _cap.Set(CaptureProperty.FrameHeight, 960)
+                            ElseIf EnumCameraImgSize.Size1280x1024 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                                _cap.Set(CaptureProperty.FrameWidth, 1280)
+                                _cap.Set(CaptureProperty.FrameHeight, 1024)
+                            ElseIf EnumCameraImgSize.Size1600x1200 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                                _cap.Set(CaptureProperty.FrameWidth, 1600)
+                                _cap.Set(CaptureProperty.FrameHeight, 1200)
+                            ElseIf EnumCameraImgSize.Size1920x1080 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                                _cap.Set(CaptureProperty.FrameWidth, 1920)
+                                _cap.Set(CaptureProperty.FrameHeight, 1080)
+                            ElseIf EnumCameraImgSize.Size1920x1200 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                                _cap.Set(CaptureProperty.FrameWidth, 1920)
+                                _cap.Set(CaptureProperty.FrameHeight, 1200)
+                            ElseIf EnumCameraImgSize.Size2048x1536 = CType(selectCamImgIndex, EnumCameraImgSize) Then
+                                _cap.Set(CaptureProperty.FrameWidth, 2048)
+                                _cap.Set(CaptureProperty.FrameHeight, 1536)
+                            End If
 
-                        'CapuretPropery
-                        Console.WriteLine("Camera ID    :{0}", camId)
-                        Console.WriteLine(" Width       :{0}", _cap.Get(CaptureProperty.FrameWidth))
-                        Console.WriteLine(" Height      :{0}", _cap.Get(CaptureProperty.FrameHeight))
-                        Console.WriteLine(" Exposure    :{0}", _cap.Get(CaptureProperty.Exposure))
-                        Console.WriteLine(" AutoExposure:{0}", _cap.Get(CaptureProperty.AutoExposure))
-                        Console.WriteLine(" Exposure    :{0}", _cap.Get(CaptureProperty.Exposure))
-                        Console.WriteLine(" FPS         :{0}", _cap.Get(CaptureProperty.Fps))
-                        Console.WriteLine(" FrameCount  :{0}", _cap.Get(CaptureProperty.FrameCount))
-                        Console.WriteLine(" Gamma       :{0}", _cap.Get(CaptureProperty.Gamma))
-                        Console.WriteLine(" Gain        :{0}", _cap.Get(CaptureProperty.Gain))
-                        Console.WriteLine(" Temperature :{0}", _cap.Get(CaptureProperty.Temperature))
-                        Console.WriteLine(" XI_AutoWB   :{0}", _cap.Get(CaptureProperty.XI_AutoWB))
+                            'CapuretPropery
+                            Console.WriteLine("Camera ID    :{0}", camId)
+                            Console.WriteLine(" Width       :{0}", _cap.Get(CaptureProperty.FrameWidth))
+                            Console.WriteLine(" Height      :{0}", _cap.Get(CaptureProperty.FrameHeight))
+                            Console.WriteLine(" Exposure    :{0}", _cap.Get(CaptureProperty.Exposure))
+                            Console.WriteLine(" AutoExposure:{0}", _cap.Get(CaptureProperty.AutoExposure))
+                            Console.WriteLine(" Exposure    :{0}", _cap.Get(CaptureProperty.Exposure))
+                            Console.WriteLine(" FPS         :{0}", _cap.Get(CaptureProperty.Fps))
+                            Console.WriteLine(" FrameCount  :{0}", _cap.Get(CaptureProperty.FrameCount))
+                            Console.WriteLine(" Gamma       :{0}", _cap.Get(CaptureProperty.Gamma))
+                            Console.WriteLine(" Gain        :{0}", _cap.Get(CaptureProperty.Gain))
+                            Console.WriteLine(" Temperature :{0}", _cap.Get(CaptureProperty.Temperature))
+                            Console.WriteLine(" XI_AutoWB   :{0}", _cap.Get(CaptureProperty.XI_AutoWB))
 
-                        Me._zoomRatio = _cap.FrameWidth / Me.pbxMainRaw.Width
-                        Me._rawWidth = _cap.FrameWidth
-                        Me._rawHeight = _cap.FrameHeight
-                    End Sub
-                  )
-    End Sub
+                            Me._zoomRatio = _cap.FrameWidth / Me.pbxMainRaw.Width
+                            Me._rawWidth = _cap.FrameWidth
+                            Me._rawHeight = _cap.FrameHeight
+                        End Sub
+                      )
+
+            'check
+            If Me._cap.Get(CaptureProperty.FrameWidth) <= 0 Then
+                '使用できないカメラ
+                Me._cap.Release()
+                Me._cap = Nothing
+                Return False
+            End If
+
+            'click位置でセンタリングしたい
+
+        Catch ex As Exception
+            _cap = Nothing
+        End Try
+
+        Return True
+    End Function
 
     ''' <summary>
     ''' worker thread
@@ -197,7 +214,11 @@ Public Class MainWindow
             sw.Restart()
             Try
                 'create VideoCapture instance
-                Me.InitCam()
+                If Me.InitCam() = False Then
+                    Threading.Thread.Sleep(100)
+                    MessageBox.Show("Erro:init cam")
+                    Return
+                End If
 
                 'capture
                 Using mat = New Mat()
@@ -558,6 +579,9 @@ Public Class MainWindow
 
         'restore
         Me.RestoreSettings()
+
+        Me.lblCapStatus.BackColor = Color.AliceBlue
+        Me.lblCapStatus.Text = String.Format("Status:Stop")
     End Sub
 
     ''' <summary>
@@ -647,6 +671,15 @@ Public Class MainWindow
         End If
     End Sub
 
+    Private Sub StopThread()
+        _thread.Abort()
+        While (_thread.ThreadState <> Threading.ThreadState.Aborted)
+            Console.WriteLine("exit...")
+            Threading.Thread.Sleep(50)
+            _thread.Join()
+        End While
+    End Sub
+
     ''' <summary>
     ''' cap start
     ''' </summary>
@@ -665,12 +698,7 @@ Public Class MainWindow
             btnCamOpen.BackColor = Color.Aqua
         Else
             'close cap
-            _thread.Abort()
-            While (_thread.ThreadState <> Threading.ThreadState.Aborted)
-                Console.WriteLine("exit...")
-                Threading.Thread.Sleep(50)
-                _thread.Join()
-            End While
+            Me.StopThread()
 
             btnCamOpen.Text = "CamOpen"
             btnCamOpen.BackColor = Color.AliceBlue
@@ -738,60 +766,84 @@ Public Class MainWindow
         If Me._cap Is Nothing Then
             Return
         End If
-        'set image process
-        Dim ip = New ImageProcesser()
 
-        If Me.cbxRotation.Checked Then
-            ip.IsRotation = True
-            ip.RotationStep = Integer.Parse(tbxRotation.Text)
-        End If
+        Try
+            Me.lblCapStatus.BackColor = Color.OrangeRed
+            Me.lblCapStatus.Text = String.Format("Status:Running...")
 
-        If Me.cbxMove.Checked Then
-            ip.IsMove = True
-            ip.NumOfMove = Integer.Parse(tbxNumOfMove.Text)
-        End If
+            'set image process
+            Dim ip = New ImageProcesser()
 
-        If Me.cbxFlip.Checked Then
-            ip.IsFlip = True
-        End If
-
-        If Me.cbxGrayscale.Checked Then
-            ip.IsColor = False
-        End If
-
-        For Each tempVal In [Enum].GetValues(GetType(EnumOutpuImageSize))
-            Dim eName As String = [Enum].GetName(GetType(EnumOutpuImageSize), tempVal)
-            If Me.cmbImgSize.SelectedItem.ToString() = eName Then
-                ip.ImageSize = CInt(tempVal)
-                Exit For
+            If Me.cbxRotation.Checked Then
+                ip.IsRotation = True
+                ip.RotationStep = Integer.Parse(tbxRotation.Text)
             End If
-        Next
 
-        ip.ClipSize = Me._clipSize
-
-        'check save folder
-        Dim saveImgUtil As New SaveImageUtili()
-        saveImgUtil.Init(Me.tbxFolderPath.Text)
-
-        'save
-        Dim imgFormat = CType(Me.cmbImageFormat.SelectedIndex, EnumOutpuImageFormat)
-
-        If Me.cbxLightCtrl.Checked = True Then
-            'Exist LED Light control
-            Dim sleepTime = Me._elapsedTime * 1.5 + 200
-            If Me.cbxAveraging.Checked = True Then
-                sleepTime = sleepTime * Integer.Parse(Me.tbxAverage.Text) + 300
+            If Me.cbxMove.Checked Then
+                ip.IsMove = True
+                ip.NumOfMove = Integer.Parse(tbxNumOfMove.Text)
             End If
-            Await Task.Run(Sub()
-                               LEDPatternSets.GetInstance().Load()
-                               Dim patterns = LEDPatternSets.GetInstance().Patterns
-                               For Each p In patterns
-                                   'LED pattern
-                                   SendArduinoWithCheckSum(p)
 
-                                   'sleep
-                                   System.Threading.Thread.Sleep(sleepTime)
+            If Me.cbxFlip.Checked Then
+                ip.IsFlip = True
+            End If
 
+            If Me.cbxGrayscale.Checked Then
+                ip.IsColor = False
+            End If
+
+            For Each tempVal In [Enum].GetValues(GetType(EnumOutpuImageSize))
+                Dim eName As String = [Enum].GetName(GetType(EnumOutpuImageSize), tempVal)
+                If Me.cmbImgSize.SelectedItem.ToString() = eName Then
+                    ip.ImageSize = CInt(tempVal)
+                    Exit For
+                End If
+            Next
+
+            ip.ClipSize = Me._clipSize
+
+            'check save folder
+            Dim saveImgUtil As New SaveImageUtili()
+            saveImgUtil.Init(Me.tbxFolderPath.Text)
+
+            'save
+            Dim imgFormat = CType(Me.cmbImageFormat.SelectedIndex, EnumOutpuImageFormat)
+
+            If Me.cbxLightCtrl.Checked = True Then
+                'Exist LED Light control
+                Dim sleepTime = Me._elapsedTime * 1.5 + 200
+                If Me.cbxAveraging.Checked = True Then
+                    sleepTime = sleepTime * Integer.Parse(Me.tbxAverage.Text) + 300
+                End If
+                Await Task.Run(Sub()
+                                   LEDPatternSets.GetInstance().Load()
+                                   Dim patterns = LEDPatternSets.GetInstance().Patterns
+                                   For Each p In patterns
+                                       'LED pattern
+                                       SendArduinoWithCheckSum(p)
+
+                                       'sleep
+                                       System.Threading.Thread.Sleep(sleepTime)
+
+                                       SyncLock _capLock
+                                           ip.InputMat = Me._rawClipExMat.Clone()
+                                       End SyncLock
+                                       Dim saveMats = ip.GetMats()
+                                       For Each saveMat In saveMats
+                                           Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
+                                           saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
+                                       Next
+                                   Next
+                               End Sub)
+
+
+
+                'LED OFF
+                Dim tempByte = GenLEDPattern.GetInitSendData(Me._ledPatternGen.NUM_OF_LED, Me._ledPatternGen.Brightness)
+                SendArduinoWithCheckSum(tempByte)
+            Else
+                'No LED control
+                Await Task.Run(Sub()
                                    SyncLock _capLock
                                        ip.InputMat = Me._rawClipExMat.Clone()
                                    End SyncLock
@@ -800,27 +852,12 @@ Public Class MainWindow
                                        Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
                                        saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
                                    Next
-                               Next
-                           End Sub)
-
-
-
-            'LED OFF
-            Dim tempByte = GenLEDPattern.GetInitSendData(Me._ledPatternGen.NUM_OF_LED, Me._ledPatternGen.Brightness)
-            SendArduinoWithCheckSum(tempByte)
-        Else
-            'No LED control
-            Await Task.Run(Sub()
-                               SyncLock _capLock
-                                   ip.InputMat = Me._rawClipExMat.Clone()
-                               End SyncLock
-                               Dim saveMats = ip.GetMats()
-                               For Each saveMat In saveMats
-                                   Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
-                                   saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
-                               Next
-                           End Sub)
-        End If
+                               End Sub)
+            End If
+        Finally
+            Me.lblCapStatus.BackColor = Color.AliceBlue
+            Me.lblCapStatus.Text = String.Format("Status:Stop")
+        End Try
     End Sub
 
     Private Sub cbxLightCtrl_CheckedChanged(sender As Object, e As EventArgs) Handles cbxLightCtrl.CheckedChanged

@@ -84,6 +84,7 @@ Partial Class MainWindow
         Me.trbG = New System.Windows.Forms.TrackBar()
         Me.trbB = New System.Windows.Forms.TrackBar()
         Me.cmbLEDCH = New System.Windows.Forms.ComboBox()
+        Me.lblCapStatus = New System.Windows.Forms.Label()
         CType(Me.pbxMainRaw, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.pbxProcessed, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox2.SuspendLayout()
@@ -278,7 +279,7 @@ Partial Class MainWindow
         Me.tbxNumOfMove.Name = "tbxNumOfMove"
         Me.tbxNumOfMove.Size = New System.Drawing.Size(36, 19)
         Me.tbxNumOfMove.TabIndex = 18
-        Me.tbxNumOfMove.Text = "10"
+        Me.tbxNumOfMove.Text = "5"
         '
         'tbxRotation
         '
@@ -286,7 +287,7 @@ Partial Class MainWindow
         Me.tbxRotation.Name = "tbxRotation"
         Me.tbxRotation.Size = New System.Drawing.Size(37, 19)
         Me.tbxRotation.TabIndex = 19
-        Me.tbxRotation.Text = "20"
+        Me.tbxRotation.Text = "10"
         '
         'cbxMove
         '
@@ -425,6 +426,7 @@ Partial Class MainWindow
         '
         'gbxCollect
         '
+        Me.gbxCollect.Controls.Add(Me.lblCapStatus)
         Me.gbxCollect.Controls.Add(Me.cmbImageFormat)
         Me.gbxCollect.Controls.Add(Me.cbxGrayscale)
         Me.gbxCollect.Controls.Add(Me.Label8)
@@ -718,6 +720,15 @@ Partial Class MainWindow
         Me.cmbLEDCH.Size = New System.Drawing.Size(100, 20)
         Me.cmbLEDCH.TabIndex = 0
         '
+        'lblCapStatus
+        '
+        Me.lblCapStatus.AutoSize = True
+        Me.lblCapStatus.Location = New System.Drawing.Point(426, 300)
+        Me.lblCapStatus.Name = "lblCapStatus"
+        Me.lblCapStatus.Size = New System.Drawing.Size(63, 12)
+        Me.lblCapStatus.TabIndex = 34
+        Me.lblCapStatus.Text = "Status:Stop"
+        '
         'MainWindow
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
@@ -807,4 +818,5 @@ Partial Class MainWindow
     Friend WithEvents btnRegister As Button
     Friend WithEvents btnPatternTest As Button
     Friend WithEvents btnBack As Button
+    Friend WithEvents lblCapStatus As Label
 End Class
