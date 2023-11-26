@@ -481,7 +481,9 @@ Public Class MainWindow
 
         'write
         oSerialPort.Write(allSendByte.ToArray, 0, allSendByte.Count)
-        Dim waitMs = CInt((allSendByte.Count * 1000) / (Me.oSerialPort.BaudRate / 8) * 1.5) + 40 'wait
+
+        'wait
+        Dim waitMs = Int(allSendByte.Count / (Me.oSerialPort.BaudRate / 8.0) * 1000 * 1.5) + 40
         System.Threading.Thread.Sleep(waitMs)
     End Sub
 #End Region
@@ -889,22 +891,22 @@ Public Class MainWindow
     End Sub
 
     Private Sub cbxLightCtrl_CheckedChanged(sender As Object, e As EventArgs) Handles cbxLightCtrl.CheckedChanged
-        If cbxLightCtrl.Checked Then
-            Me.btnOpenClose.Enabled = True
-            Me.cbxPort.Enabled = True
-        Else
-            Me.btnOpenClose.Enabled = False
-            Me.cbxPort.Enabled = False
+        'If cbxLightCtrl.Checked Then
+        '    Me.btnOpenClose.Enabled = True
+        '    Me.cbxPort.Enabled = True
+        'Else
+        '    Me.btnOpenClose.Enabled = False
+        '    Me.cbxPort.Enabled = False
 
-            If oSerialPort.IsOpen Then
-                CloseProcess()
-                Me.btnOpenClose.Text = "Open"
-                Me.btnOpenClose.BackColor = Color.AliceBlue
-            End If
-        End If
+        '    If oSerialPort.IsOpen Then
+        '        CloseProcess()
+        '        Me.btnOpenClose.Text = "Open"
+        '        Me.btnOpenClose.BackColor = Color.AliceBlue
+        '    End If
+        'End If
     End Sub
 
-    Public Function LEDP() As List(Of Byte)
+    Public Function GenerateLEDPattern() As List(Of Byte)
         Dim tempBytes As New List(Of Byte)
         Me._ledPatternGen.Brightness = Me.trbBrightness.Value
         If Me.rdnSingle.Checked Then
@@ -936,17 +938,20 @@ Public Class MainWindow
     ''' <summary>
     ''' LED制御
     ''' </summary>
-    Private Async Sub SendLEDSignal()
+    Private Sub SendLEDSignal()
         If Me._ledPatternGen Is Nothing Then
             Return
         End If
 
-        Dim tempBytes = LEDP()
-        Await Task.Run(Sub()
-                           SyncLock _ledLock
-                               Me.SendArduinoWithCheckSum(tempBytes)
-                           End SyncLock
-                       End Sub)
+        Dim tempBytes = Me.GenerateLEDPattern()
+        Me.SendArduinoWithCheckSum(tempBytes)
+
+        ' Async削除
+        'Await Task.Run(Sub()
+        '                   SyncLock _ledLock
+        '                       Me.SendArduinoWithCheckSum(tempBytes)
+        '                   End SyncLock
+        '               End Sub)
     End Sub
 
     Private Sub btnDemoOFF_Click(sender As Object, e As EventArgs) Handles btnDemoOFF.Click
@@ -1030,7 +1035,7 @@ Public Class MainWindow
     Private Sub btnRegister_Click(sender As Object, e As EventArgs) Handles btnRegister.Click
         LEDPatternSets.GetInstance().Load()
 
-        Dim tempBytes = LEDP()
+        Dim tempBytes = GenerateLEDPattern()
         LEDPatternSets.GetInstance().Patterns.Add(tempBytes)
         LEDPatternSets.GetInstance().Update()
     End Sub
