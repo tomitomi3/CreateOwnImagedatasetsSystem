@@ -260,14 +260,44 @@ Public Class MainWindow
                         Me.GetClipImageFromCameraImage(mat, clipEditMat, Me._rawClipMat, Me._rawClipExMat)
                     End SyncLock
 
-                    'Debug get RGB Value from ROI
-                    Dim g_width As Integer = Me._rawClipMat.Width / 2
-                    Dim g_height As Integer = Me._rawClipMat.Height / 2
-                    Dim g_data = Me._rawClipMat(g_width, g_width + 1, g_height, g_height + 1)
-                    Dim prt = g_data.Data() 'B G Rの並び
-                    Dim b = Marshal.ReadByte(prt)
-                    Dim g = Marshal.ReadByte(prt + 1)
-                    Dim r = Marshal.ReadByte(prt + 2)
+                    ' ROI 平均RGB
+                    Dim avgR = 0
+                    Dim avgG = 0
+                    Dim avgB = 0
+                    With Nothing
+                        Dim width As Integer = Me._rawClipMat.Width
+                        Dim height As Integer = Me._rawClipMat.Height
+                        Dim totalR As Long = 0
+                        Dim totalG As Long = 0
+                        Dim totalB As Long = 0
+                        Dim count As Long = 0
+
+                        Dim pixelSize As Integer = Image.GetPixelFormatSize(Me._rawClipMat.Type()) / 8 ' ピクセルあたりのバイト数
+                        Dim dataPtr As IntPtr = Me._rawClipMat.Data
+                        For y As Integer = 0 To height - 1 Step 2
+                            For x As Integer = 0 To width - 1 Step 2
+                                ' 現在のピクセルへのポインタを計算
+                                Dim pixelPtr As IntPtr = dataPtr + y * Me._rawClipMat.Step() + x * pixelSize
+
+                                ' RGB値を読み取る
+                                Dim b As Byte = Marshal.ReadByte(pixelPtr)       ' Blue
+                                Dim g As Byte = Marshal.ReadByte(pixelPtr + 1)   ' Green
+                                Dim r As Byte = Marshal.ReadByte(pixelPtr + 2)   ' Red
+
+                                ' 合計に加える
+                                totalB += b
+                                totalG += g
+                                totalR += r
+                                count += 1
+                            Next
+                        Next
+
+                        ' 平均RGB値を計算
+                        avgR = Int(totalR / count)
+                        avgG = Int(totalG / count)
+                        avgB = Int(totalB / count)
+                    End With
+
 
                     'Update UI
                     Me.Invoke(
@@ -297,7 +327,7 @@ Public Class MainWindow
                                 End Using
                             End If
 
-                            Me.lblRGBFromROI.Text = String.Format("RGB,{0},{1},{2}", r, g, b)
+                            Me.lblRGBFromROI.Text = String.Format("RGB,{0},{1},{2}", avgR, avgG, avgB)
                         End Sub
                         )
                 End Using
@@ -913,18 +943,23 @@ Public Class MainWindow
     Public Function GenerateLEDPattern() As List(Of Byte)
         Dim tempBytes As New List(Of Byte)
         Me._ledPatternGen.Brightness = Me.trbBrightness.Value
+
         If Me.rdnSingle.Checked Then
+            ' single
             tempBytes = Me._ledPatternGen.GenSinglePattern(Me.cmbLEDCH.SelectedIndex, trbR.Value, trbG.Value, trbB.Value)
         ElseIf Me.rdnLink.Checked Then
+            ' link
             tempBytes = GenLEDPattern.GenSamePattern(Me._ledPatternGen.NUM_OF_LED, Me._ledPatternGen.Brightness,
                                                     trbR.Value, trbG.Value, trbB.Value)
         ElseIf Me.rdnUpper.Checked Then
+            ' Upper
             tempBytes = GenLEDPattern.GenSamePattern(Me._ledPatternGen.NUM_OF_LED, Me._ledPatternGen.Brightness,
                                                     trbR.Value, trbG.Value, trbB.Value)
             tempBytes(GenLEDPattern.IDX_CH4 + 1) = 0
             tempBytes(GenLEDPattern.IDX_CH4 + 2) = 0
             tempBytes(GenLEDPattern.IDX_CH4 + 3) = 0
         ElseIf Me.rdnTable.Checked Then
+            ' Table
             tempBytes = GenLEDPattern.GenSamePattern(Me._ledPatternGen.NUM_OF_LED, Me._ledPatternGen.Brightness,
                                                     trbR.Value, trbG.Value, trbB.Value)
             For i As Integer = 0 To 4 - 1

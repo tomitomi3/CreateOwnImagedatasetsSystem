@@ -59,6 +59,10 @@ Partial Class MainWindow
         Me.btnDemoB = New System.Windows.Forms.Button()
         Me.btnDemoW = New System.Windows.Forms.Button()
         Me.gbxCollect = New System.Windows.Forms.GroupBox()
+        Me.lblExposure = New System.Windows.Forms.Label()
+        Me.tbxExposure = New System.Windows.Forms.TextBox()
+        Me.cbxAutoExposure = New System.Windows.Forms.CheckBox()
+        Me.cbxAutoWB = New System.Windows.Forms.CheckBox()
         Me.lblCapStatus = New System.Windows.Forms.Label()
         Me.cmbImageFormat = New System.Windows.Forms.ComboBox()
         Me.cbxGrayscale = New System.Windows.Forms.CheckBox()
@@ -85,10 +89,6 @@ Partial Class MainWindow
         Me.trbG = New System.Windows.Forms.TrackBar()
         Me.trbB = New System.Windows.Forms.TrackBar()
         Me.cmbLEDCH = New System.Windows.Forms.ComboBox()
-        Me.cbxAutoWB = New System.Windows.Forms.CheckBox()
-        Me.cbxAutoExposure = New System.Windows.Forms.CheckBox()
-        Me.tbxExposure = New System.Windows.Forms.TextBox()
-        Me.lblExposure = New System.Windows.Forms.Label()
         CType(Me.pbxMainRaw, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.pbxProcessed, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox2.SuspendLayout()
@@ -474,6 +474,44 @@ Partial Class MainWindow
         Me.gbxCollect.TabStop = False
         Me.gbxCollect.Text = "Settings for Collect"
         '
+        'lblExposure
+        '
+        Me.lblExposure.AutoSize = True
+        Me.lblExposure.Location = New System.Drawing.Point(219, 42)
+        Me.lblExposure.Name = "lblExposure"
+        Me.lblExposure.Size = New System.Drawing.Size(52, 12)
+        Me.lblExposure.TabIndex = 38
+        Me.lblExposure.Text = "Exposure"
+        '
+        'tbxExposure
+        '
+        Me.tbxExposure.Location = New System.Drawing.Point(282, 39)
+        Me.tbxExposure.Name = "tbxExposure"
+        Me.tbxExposure.Size = New System.Drawing.Size(57, 19)
+        Me.tbxExposure.TabIndex = 37
+        Me.tbxExposure.Text = "-10"
+        '
+        'cbxAutoExposure
+        '
+        Me.cbxAutoExposure.AutoSize = True
+        Me.cbxAutoExposure.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.cbxAutoExposure.Location = New System.Drawing.Point(97, 40)
+        Me.cbxAutoExposure.Name = "cbxAutoExposure"
+        Me.cbxAutoExposure.Size = New System.Drawing.Size(95, 16)
+        Me.cbxAutoExposure.TabIndex = 36
+        Me.cbxAutoExposure.Text = "AutoExposure"
+        Me.cbxAutoExposure.UseVisualStyleBackColor = True
+        '
+        'cbxAutoWB
+        '
+        Me.cbxAutoWB.AutoSize = True
+        Me.cbxAutoWB.Location = New System.Drawing.Point(13, 40)
+        Me.cbxAutoWB.Name = "cbxAutoWB"
+        Me.cbxAutoWB.Size = New System.Drawing.Size(65, 16)
+        Me.cbxAutoWB.TabIndex = 35
+        Me.cbxAutoWB.Text = "AutoWB"
+        Me.cbxAutoWB.UseVisualStyleBackColor = True
+        '
         'lblCapStatus
         '
         Me.lblCapStatus.AutoSize = True
@@ -554,7 +592,7 @@ Partial Class MainWindow
         Me.gbxLED.Controls.Add(Me.cmbLEDCH)
         Me.gbxLED.Location = New System.Drawing.Point(527, 406)
         Me.gbxLED.Name = "gbxLED"
-        Me.gbxLED.Size = New System.Drawing.Size(508, 306)
+        Me.gbxLED.Size = New System.Drawing.Size(508, 291)
         Me.gbxLED.TabIndex = 32
         Me.gbxLED.TabStop = False
         Me.gbxLED.Text = "LED Manual Control"
@@ -599,10 +637,12 @@ Partial Class MainWindow
         'rdnUpper
         '
         Me.rdnUpper.AutoSize = True
+        Me.rdnUpper.Checked = True
         Me.rdnUpper.Location = New System.Drawing.Point(281, 32)
         Me.rdnUpper.Name = "rdnUpper"
         Me.rdnUpper.Size = New System.Drawing.Size(82, 16)
         Me.rdnUpper.TabIndex = 37
+        Me.rdnUpper.TabStop = True
         Me.rdnUpper.Text = "Link(Upper)"
         Me.rdnUpper.UseVisualStyleBackColor = True
         '
@@ -619,12 +659,10 @@ Partial Class MainWindow
         'rdnSingle
         '
         Me.rdnSingle.AutoSize = True
-        Me.rdnSingle.Checked = True
         Me.rdnSingle.Location = New System.Drawing.Point(133, 32)
         Me.rdnSingle.Name = "rdnSingle"
         Me.rdnSingle.Size = New System.Drawing.Size(54, 16)
         Me.rdnSingle.TabIndex = 37
-        Me.rdnSingle.TabStop = True
         Me.rdnSingle.Text = "Single"
         Me.rdnSingle.UseVisualStyleBackColor = True
         '
@@ -640,7 +678,7 @@ Partial Class MainWindow
         'lblB
         '
         Me.lblB.AutoSize = True
-        Me.lblB.Location = New System.Drawing.Point(257, 254)
+        Me.lblB.Location = New System.Drawing.Point(257, 239)
         Me.lblB.Name = "lblB"
         Me.lblB.Size = New System.Drawing.Size(11, 12)
         Me.lblB.TabIndex = 4
@@ -649,7 +687,7 @@ Partial Class MainWindow
         'lblG
         '
         Me.lblG.AutoSize = True
-        Me.lblG.Location = New System.Drawing.Point(257, 203)
+        Me.lblG.Location = New System.Drawing.Point(257, 197)
         Me.lblG.Name = "lblG"
         Me.lblG.Size = New System.Drawing.Size(11, 12)
         Me.lblG.TabIndex = 3
@@ -658,7 +696,7 @@ Partial Class MainWindow
         'lblR
         '
         Me.lblR.AutoSize = True
-        Me.lblR.Location = New System.Drawing.Point(257, 152)
+        Me.lblR.Location = New System.Drawing.Point(257, 151)
         Me.lblR.Name = "lblR"
         Me.lblR.Size = New System.Drawing.Size(11, 12)
         Me.lblR.TabIndex = 2
@@ -676,7 +714,7 @@ Partial Class MainWindow
         'lblRGBFromROI
         '
         Me.lblRGBFromROI.AutoSize = True
-        Me.lblRGBFromROI.Location = New System.Drawing.Point(352, 92)
+        Me.lblRGBFromROI.Location = New System.Drawing.Point(325, 92)
         Me.lblRGBFromROI.Name = "lblRGBFromROI"
         Me.lblRGBFromROI.Size = New System.Drawing.Size(53, 12)
         Me.lblRGBFromROI.TabIndex = 34
@@ -702,7 +740,7 @@ Partial Class MainWindow
         '
         'trbR
         '
-        Me.trbR.Location = New System.Drawing.Point(20, 148)
+        Me.trbR.Location = New System.Drawing.Point(20, 142)
         Me.trbR.Maximum = 255
         Me.trbR.Name = "trbR"
         Me.trbR.Size = New System.Drawing.Size(231, 45)
@@ -711,7 +749,7 @@ Partial Class MainWindow
         '
         'trbG
         '
-        Me.trbG.Location = New System.Drawing.Point(20, 199)
+        Me.trbG.Location = New System.Drawing.Point(20, 187)
         Me.trbG.Maximum = 255
         Me.trbG.Name = "trbG"
         Me.trbG.Size = New System.Drawing.Size(231, 45)
@@ -720,7 +758,7 @@ Partial Class MainWindow
         '
         'trbB
         '
-        Me.trbB.Location = New System.Drawing.Point(20, 250)
+        Me.trbB.Location = New System.Drawing.Point(20, 232)
         Me.trbB.Maximum = 255
         Me.trbB.Name = "trbB"
         Me.trbB.Size = New System.Drawing.Size(231, 45)
@@ -734,44 +772,6 @@ Partial Class MainWindow
         Me.cmbLEDCH.Name = "cmbLEDCH"
         Me.cmbLEDCH.Size = New System.Drawing.Size(100, 20)
         Me.cmbLEDCH.TabIndex = 0
-        '
-        'cbxAutoWB
-        '
-        Me.cbxAutoWB.AutoSize = True
-        Me.cbxAutoWB.Location = New System.Drawing.Point(13, 40)
-        Me.cbxAutoWB.Name = "cbxAutoWB"
-        Me.cbxAutoWB.Size = New System.Drawing.Size(65, 16)
-        Me.cbxAutoWB.TabIndex = 35
-        Me.cbxAutoWB.Text = "AutoWB"
-        Me.cbxAutoWB.UseVisualStyleBackColor = True
-        '
-        'cbxAutoExposure
-        '
-        Me.cbxAutoExposure.AutoSize = True
-        Me.cbxAutoExposure.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.cbxAutoExposure.Location = New System.Drawing.Point(97, 40)
-        Me.cbxAutoExposure.Name = "cbxAutoExposure"
-        Me.cbxAutoExposure.Size = New System.Drawing.Size(95, 16)
-        Me.cbxAutoExposure.TabIndex = 36
-        Me.cbxAutoExposure.Text = "AutoExposure"
-        Me.cbxAutoExposure.UseVisualStyleBackColor = True
-        '
-        'tbxExposure
-        '
-        Me.tbxExposure.Location = New System.Drawing.Point(282, 39)
-        Me.tbxExposure.Name = "tbxExposure"
-        Me.tbxExposure.Size = New System.Drawing.Size(57, 19)
-        Me.tbxExposure.TabIndex = 37
-        Me.tbxExposure.Text = "-10"
-        '
-        'lblExposure
-        '
-        Me.lblExposure.AutoSize = True
-        Me.lblExposure.Location = New System.Drawing.Point(219, 42)
-        Me.lblExposure.Name = "lblExposure"
-        Me.lblExposure.Size = New System.Drawing.Size(52, 12)
-        Me.lblExposure.TabIndex = 38
-        Me.lblExposure.Text = "Exposure"
         '
         'MainWindow
         '
