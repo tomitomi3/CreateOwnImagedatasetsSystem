@@ -808,7 +808,7 @@ Public Class MainWindow
             End If
 
             If Me.cbxMove.Checked Then
-                ip.IsMove = True
+                ip.IsRandomMove = True
                 ip.NumOfMove = Integer.Parse(tbxNumOfMove.Text)
             End If
 
@@ -858,7 +858,7 @@ Public Class MainWindow
                                            System.Threading.Thread.Sleep(sleepTime)
 
                                            ip.InputMat = Me._rawClipExMat.Clone()
-                                           Dim saveMats = ip.GetMats()
+                                           Dim saveMats = ip.GetImageProcessedMats()
                                            For Each saveMat In saveMats
                                                Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
                                                saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
@@ -874,7 +874,7 @@ Public Class MainWindow
                 Await Task.Run(Sub()
                                    SyncLock _capLock
                                        ip.InputMat = Me._rawClipExMat.Clone()
-                                       Dim saveMats = ip.GetMats()
+                                       Dim saveMats = ip.GetImageProcessedMats()
                                        For Each saveMat In saveMats
                                            Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
                                            saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
