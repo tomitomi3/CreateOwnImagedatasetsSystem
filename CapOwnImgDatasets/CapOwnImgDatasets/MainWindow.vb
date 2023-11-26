@@ -500,24 +500,28 @@ Public Class MainWindow
 
         'gets videocapture
         Dim camIds As New List(Of Integer)
-        'camIds.Add(0)
-        'camIds.Add(1)
-        'camIds.Add(2)
-        For i As Integer = 0 To 10 - 1
-            Dim temp As VideoCapture = Nothing
-            Try
-                temp = New OpenCvSharp.VideoCapture(i)
-                If temp.IsOpened() = False Then
-                    Continue For
-                Else
-                    Console.WriteLine("CAMERA ID:{0}", i)
-                    Console.WriteLine(" {0} {1}", temp.Get(VideoCaptureProperties.FrameHeight), temp.Get(VideoCaptureProperties.FrameWidth))
-                    camIds.Add(i)
-                End If
-            Finally
-                temp.Release()
-            End Try
-        Next
+
+        '上位3つを追加
+        camIds.Add(0)
+        camIds.Add(1)
+        camIds.Add(2)
+
+        ' openしてカメラ判定 カメラ使用中だと都合が悪い
+        'For i As Integer = 0 To 10 - 1
+        '    Dim temp As VideoCapture = Nothing
+        '    Try
+        '        temp = New OpenCvSharp.VideoCapture(i)
+        '        If temp.IsOpened() = False Then
+        '            Continue For
+        '        Else
+        '            Console.WriteLine("CAMERA ID:{0}", i)
+        '            Console.WriteLine(" {0} {1}", temp.Get(VideoCaptureProperties.FrameHeight), temp.Get(VideoCaptureProperties.FrameWidth))
+        '            camIds.Add(i)
+        '        End If
+        '    Finally
+        '        temp.Release()
+        '    End Try
+        'Next
 
         'cmb box camera ID
         cmbCamID.DropDownStyle = ComboBoxStyle.DropDownList
@@ -547,7 +551,7 @@ Public Class MainWindow
             Dim eName As String = [Enum].GetName(GetType(EnumCameraImgSize), tempVal)
             cmbCamImgSize.Items.Add(eName)
         Next
-        cmbCamImgSize.SelectedIndex = 3
+        cmbCamImgSize.SelectedIndex = 4
 
         'cmb box image size
         cmbImgSize.DropDownStyle = ComboBoxStyle.DropDownList
@@ -556,7 +560,7 @@ Public Class MainWindow
             Dim eName As String = [Enum].GetName(GetType(EnumOutpuImageSize), tempVal)
             cmbImgSize.Items.Add(eName)
         Next
-        cmbImgSize.SelectedIndex = 1
+        cmbImgSize.SelectedIndex = 2
 
         'UART
         oSerialPort = New SerialPort()
@@ -600,7 +604,7 @@ Public Class MainWindow
             Dim eName As String = [Enum].GetName(GetType(EnumOutpuImageFormat), tempVal)
             cmbImageFormat.Items.Add(eName)
         Next
-        cmbImageFormat.SelectedIndex = 1
+        cmbImageFormat.SelectedIndex = 2
 
         'save
         Dim initCorrectName = "MyImageDataset"

@@ -1,4 +1,5 @@
-﻿Imports System.IO
+﻿Imports System.Drawing.Imaging
+Imports System.IO
 
 Public Class SaveImageUtili
     ''' <summary>対応表（正解名:ファイルNo）</summary>
@@ -85,8 +86,17 @@ Public Class SaveImageUtili
             savePath = String.Format("{0}\{1:D6}.png", saveDirPath, nextNo)
             tempBmp.Save(savePath, Imaging.ImageFormat.Png)
         ElseIf imgFormat = MainWindow.EnumOutpuImageFormat.JPEG Then
+            Dim jpegCodec As ImageCodecInfo = ImageCodecInfo.GetImageEncoders().Where(Function(codec) codec.MimeType = "image/jpeg").FirstOrDefault()
+            If jpegCodec Is Nothing Then
+                Return
+            End If
+
+            ' JPEG 品質指定
+            Dim encoderParams As New EncoderParameters(1)
+            encoderParams.Param(0) = New EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 90)
+
             savePath = String.Format("{0}\{1:D6}.jpg", saveDirPath, nextNo)
-            tempBmp.Save(savePath, Imaging.ImageFormat.Jpeg)
+            tempBmp.Save(savePath, jpegCodec, encoderParams)
         Else
             savePath = String.Format("{0}\{1:D6}.bmp", saveDirPath, nextNo)
             tempBmp.Save(savePath, Imaging.ImageFormat.Bmp)
