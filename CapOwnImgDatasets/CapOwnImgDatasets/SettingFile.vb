@@ -5,13 +5,13 @@ Public Class SettingFile
 
     Public Property IsAverage As Boolean = True
     Public Property NumAve As Integer = 2
-    Public Property IsLightCtrl As Boolean = True
+    Public Property IsLEDCtrl As Boolean = False
     Public Property IsRotation As Boolean = True
     Public Property RotationStep As Integer = 30
     Public Property IsMove As Boolean = False
     Public Property NumMoveImgs As Integer = 10
     Public Property IsFlip As Boolean = False
-    Public Property IsColor As Boolean = True
+    Public Property IsConvertGrayScale As Boolean = False
 
     Private Const SETTINGPATH As String = "CaptureSetting.txt"
 

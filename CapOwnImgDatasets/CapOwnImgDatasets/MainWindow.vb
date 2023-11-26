@@ -55,8 +55,9 @@ Public Class MainWindow
         JPEG
     End Enum
 
-    ''' <summary>コンソール</summary>
-    Declare Function AllocConsole Lib "kernel32" () As Int32
+    <Runtime.InteropServices.DllImport("kernel32.dll")>
+    Private Shared Function AllocConsole() As Boolean
+    End Function
 
     ''' <summary>video cap</summary>
     Private _cap As VideoCapture = Nothing
@@ -168,19 +169,45 @@ Public Class MainWindow
                                 _cap.Set(VideoCaptureProperties.FrameHeight, 1536)
                             End If
 
+                            ' カメラ設定
+                            If Me.cbxAutoWB.Checked = False Then
+                                _cap.Set(VideoCaptureProperties.AutoWB, 0)
+                            Else
+                                _cap.Set(VideoCaptureProperties.AutoWB, 1)
+                            End If
+
+                            If Me.cbxAutoExposure.Checked = False Then
+                                _cap.Set(VideoCaptureProperties.AutoExposure, 0)
+
+                                ' Manual
+                                Dim tempExposure = Int(Me.tbxExposure.Text)
+                                _cap.Set(VideoCaptureProperties.Exposure, tempExposure)
+                            Else
+                                _cap.Set(VideoCaptureProperties.AutoExposure, 1)
+                            End If
+
+                            If Me.cbxAutoExposure.Checked = False Then
+                                ' Manual
+                                Dim tempExposure = Int(Me.tbxExposure.Text)
+                                _cap.Set(VideoCaptureProperties.Exposure, tempExposure)
+                            End If
+
                             'CapuretPropery
                             Console.WriteLine("Camera ID    :{0}", camId)
                             Console.WriteLine(" Width       :{0}", _cap.Get(VideoCaptureProperties.FrameWidth))
                             Console.WriteLine(" Height      :{0}", _cap.Get(VideoCaptureProperties.FrameHeight))
-                            Console.WriteLine(" Exposure    :{0}", _cap.Get(VideoCaptureProperties.Exposure))
+                            Console.WriteLine(" AutoWB      :{0}", _cap.Get(VideoCaptureProperties.AutoWB))
                             Console.WriteLine(" AutoExposure:{0}", _cap.Get(VideoCaptureProperties.AutoExposure))
                             Console.WriteLine(" Exposure    :{0}", _cap.Get(VideoCaptureProperties.Exposure))
                             Console.WriteLine(" FPS         :{0}", _cap.Get(VideoCaptureProperties.Fps))
                             Console.WriteLine(" FrameCount  :{0}", _cap.Get(VideoCaptureProperties.FrameCount))
                             Console.WriteLine(" Gamma       :{0}", _cap.Get(VideoCaptureProperties.Gamma))
+                            Console.WriteLine(" Brightness  :{0}", _cap.Get(VideoCaptureProperties.Brightness))
+                            Console.WriteLine(" Contrast    :{0}", _cap.Get(VideoCaptureProperties.Contrast))
+                            Console.WriteLine(" Hue         :{0}", _cap.Get(VideoCaptureProperties.Hue))
+                            Console.WriteLine(" Gamma       :{0}", _cap.Get(VideoCaptureProperties.Gamma))
                             Console.WriteLine(" Gain        :{0}", _cap.Get(VideoCaptureProperties.Gain))
                             Console.WriteLine(" Temperature :{0}", _cap.Get(VideoCaptureProperties.Temperature))
-                            Console.WriteLine(" XI_AutoWB   :{0}", _cap.Get(VideoCaptureProperties.XI_AutoWB))
 
                             Me._zoomRatio = _cap.FrameWidth / Me.pbxMainRaw.Width
                             Me._rawWidth = _cap.FrameWidth
@@ -467,28 +494,28 @@ Public Class MainWindow
     ''' <param name="e"></param>
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AllocConsole()
+        Console.WriteLine("start")
 
         'gets videocapture
         Dim camIds As New List(Of Integer)
-        camIds.Add(0)
-        camIds.Add(1)
-        camIds.Add(2)
-
-        'For i As Integer = 0 To 10 - 1
-        '    Dim temp As VideoCapture = Nothing
-        '    Try
-        '        temp = New OpenCvSharp.VideoCapture(i)
-        '        If temp.IsOpened() = False Then
-        '            Continue For
-        '        Else
-        '            Console.WriteLine("CAMERA ID:{0}", i)
-        '            Console.WriteLine(" {0} {1}", temp.Get(VideoCaptureProperties.FrameHeight), temp.Get(VideoCaptureProperties.FrameWidth))
-        '            camIds.Add(i)
-        '        End If
-        '    Finally
-        '        temp.Release()
-        '    End Try
-        'Next
+        'camIds.Add(0)
+        'camIds.Add(1)
+        'camIds.Add(2)
+        For i As Integer = 0 To 10 - 1
+            Dim temp As VideoCapture = Nothing
+            Try
+                temp = New OpenCvSharp.VideoCapture(i)
+                If temp.IsOpened() = False Then
+                    Continue For
+                Else
+                    Console.WriteLine("CAMERA ID:{0}", i)
+                    Console.WriteLine(" {0} {1}", temp.Get(VideoCaptureProperties.FrameHeight), temp.Get(VideoCaptureProperties.FrameWidth))
+                    camIds.Add(i)
+                End If
+            Finally
+                temp.Release()
+            End Try
+        Next
 
         'cmb box camera ID
         cmbCamID.DropDownStyle = ComboBoxStyle.DropDownList
@@ -592,13 +619,13 @@ Public Class MainWindow
         SettingFile.GetInstance().Load()
         Me.cbxAveraging.Checked = SettingFile.GetInstance().IsAverage
         Me.tbxAverage.Text = SettingFile.GetInstance().NumAve.ToString()
-        Me.cbxLightCtrl.Checked = SettingFile.GetInstance().IsLightCtrl
+        Me.cbxLightCtrl.Checked = SettingFile.GetInstance().IsLEDCtrl
         Me.cbxRotation.Checked = SettingFile.GetInstance().IsRotation
         Me.tbxRotation.Text = SettingFile.GetInstance().RotationStep.ToString()
         Me.cbxMove.Checked = SettingFile.GetInstance().IsMove
         Me.tbxNumOfMove.Text = SettingFile.GetInstance().NumMoveImgs.ToString()
         Me.cbxFlip.Checked = SettingFile.GetInstance().IsFlip
-        Me.cbxGrayscale.Checked = Not SettingFile.GetInstance().IsColor
+        Me.cbxGrayscale.Checked = SettingFile.GetInstance().IsConvertGrayScale
     End Sub
 
     ''' <summary>
@@ -607,13 +634,13 @@ Public Class MainWindow
     Private Sub SaveSettings()
         SettingFile.GetInstance().IsAverage = Me.cbxAveraging.Checked
         SettingFile.GetInstance().NumAve = Integer.Parse(Me.tbxAverage.Text)
-        SettingFile.GetInstance().IsLightCtrl = Me.cbxLightCtrl.Checked
+        SettingFile.GetInstance().IsLEDCtrl = Me.cbxLightCtrl.Checked
         SettingFile.GetInstance().IsRotation = Me.cbxRotation.Checked
         SettingFile.GetInstance().RotationStep = Integer.Parse(Me.tbxRotation.Text)
         SettingFile.GetInstance().IsMove = Me.cbxMove.Checked
         SettingFile.GetInstance().NumMoveImgs = Integer.Parse(Me.tbxNumOfMove.Text)
         SettingFile.GetInstance().IsFlip = Me.cbxFlip.Checked
-        SettingFile.GetInstance().IsColor = Not Me.cbxGrayscale.Checked
+        SettingFile.GetInstance().IsConvertGrayScale = Me.cbxGrayscale.Checked
         SettingFile.GetInstance().Update()
     End Sub
 
@@ -812,33 +839,33 @@ Public Class MainWindow
 
             If Me.cbxLightCtrl.Checked = True Then
                 'Exist LED Light control
-                Dim sleepTime = Me._elapsedTime * 1.5 + 200
+                LEDPatternSets.GetInstance().Load()
+                Dim patterns = LEDPatternSets.GetInstance().Patterns
+
+                ' sleep setting
+                Dim sleepTime = Me._elapsedTime * 4
                 If Me.cbxAveraging.Checked = True Then
-                    sleepTime = sleepTime * Integer.Parse(Me.tbxAverage.Text) + 300
+                    sleepTime = sleepTime * Integer.Parse(Me.tbxAverage.Text) + 100
                 End If
+
                 Await Task.Run(Sub()
-                                   LEDPatternSets.GetInstance().Load()
-                                   Dim patterns = LEDPatternSets.GetInstance().Patterns
-                                   For Each p In patterns
-                                       'LED pattern
-                                       SendArduinoWithCheckSum(p)
+                                   SyncLock _capLock
+                                       For Each p In patterns
+                                           'LED pattern
+                                           SendArduinoWithCheckSum(p)
 
-                                       'sleep
-                                       System.Threading.Thread.Sleep(sleepTime)
+                                           'sleep
+                                           System.Threading.Thread.Sleep(sleepTime)
 
-                                       SyncLock _capLock
                                            ip.InputMat = Me._rawClipExMat.Clone()
-                                       End SyncLock
-                                       Dim saveMats = ip.GetMats()
-                                       For Each saveMat In saveMats
-                                           Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
-                                           saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
+                                           Dim saveMats = ip.GetMats()
+                                           For Each saveMat In saveMats
+                                               Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
+                                               saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
+                                           Next
                                        Next
-                                   Next
+                                   End SyncLock
                                End Sub)
-
-
-
                 'LED OFF
                 Dim tempByte = GenLEDPattern.GetInitSendData(Me._ledPatternGen.NUM_OF_LED, Me._ledPatternGen.Brightness)
                 SendArduinoWithCheckSum(tempByte)
@@ -847,12 +874,12 @@ Public Class MainWindow
                 Await Task.Run(Sub()
                                    SyncLock _capLock
                                        ip.InputMat = Me._rawClipExMat.Clone()
+                                       Dim saveMats = ip.GetMats()
+                                       For Each saveMat In saveMats
+                                           Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
+                                           saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
+                                       Next
                                    End SyncLock
-                                   Dim saveMats = ip.GetMats()
-                                   For Each saveMat In saveMats
-                                       Dim saveBmp As Bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(saveMat)
-                                       saveImgUtil.Save(imgFormat, Me.tbxCorrectName.Text, saveBmp)
-                                   Next
                                End Sub)
             End If
         Finally
