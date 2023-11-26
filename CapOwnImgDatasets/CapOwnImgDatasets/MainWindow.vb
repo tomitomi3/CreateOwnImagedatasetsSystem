@@ -140,47 +140,47 @@ Public Class MainWindow
                             selectCamImgIndex = Me.cmbCamImgSize.SelectedIndex
 
                             If EnumCameraImgSize.Size640x480 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                                _cap.Set(CaptureProperty.FrameWidth, 640)
-                                _cap.Set(CaptureProperty.FrameHeight, 480)
+                                _cap.Set(VideoCaptureProperties.FrameWidth, 640)
+                                _cap.Set(VideoCaptureProperties.FrameHeight, 480)
                             ElseIf EnumCameraImgSize.Size800x600 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                                _cap.Set(CaptureProperty.FrameWidth, 800)
-                                _cap.Set(CaptureProperty.FrameHeight, 600)
+                                _cap.Set(VideoCaptureProperties.FrameWidth, 800)
+                                _cap.Set(VideoCaptureProperties.FrameHeight, 600)
                             ElseIf EnumCameraImgSize.Size1280x720 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                                _cap.Set(CaptureProperty.FrameWidth, 1280)
-                                _cap.Set(CaptureProperty.FrameHeight, 720)
+                                _cap.Set(VideoCaptureProperties.FrameWidth, 1280)
+                                _cap.Set(VideoCaptureProperties.FrameHeight, 720)
                             ElseIf EnumCameraImgSize.Size1280x960 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                                _cap.Set(CaptureProperty.FrameWidth, 1280)
-                                _cap.Set(CaptureProperty.FrameHeight, 960)
+                                _cap.Set(VideoCaptureProperties.FrameWidth, 1280)
+                                _cap.Set(VideoCaptureProperties.FrameHeight, 960)
                             ElseIf EnumCameraImgSize.Size1280x1024 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                                _cap.Set(CaptureProperty.FrameWidth, 1280)
-                                _cap.Set(CaptureProperty.FrameHeight, 1024)
+                                _cap.Set(VideoCaptureProperties.FrameWidth, 1280)
+                                _cap.Set(VideoCaptureProperties.FrameHeight, 1024)
                             ElseIf EnumCameraImgSize.Size1600x1200 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                                _cap.Set(CaptureProperty.FrameWidth, 1600)
-                                _cap.Set(CaptureProperty.FrameHeight, 1200)
+                                _cap.Set(VideoCaptureProperties.FrameWidth, 1600)
+                                _cap.Set(VideoCaptureProperties.FrameHeight, 1200)
                             ElseIf EnumCameraImgSize.Size1920x1080 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                                _cap.Set(CaptureProperty.FrameWidth, 1920)
-                                _cap.Set(CaptureProperty.FrameHeight, 1080)
+                                _cap.Set(VideoCaptureProperties.FrameWidth, 1920)
+                                _cap.Set(VideoCaptureProperties.FrameHeight, 1080)
                             ElseIf EnumCameraImgSize.Size1920x1200 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                                _cap.Set(CaptureProperty.FrameWidth, 1920)
-                                _cap.Set(CaptureProperty.FrameHeight, 1200)
+                                _cap.Set(VideoCaptureProperties.FrameWidth, 1920)
+                                _cap.Set(VideoCaptureProperties.FrameHeight, 1200)
                             ElseIf EnumCameraImgSize.Size2048x1536 = CType(selectCamImgIndex, EnumCameraImgSize) Then
-                                _cap.Set(CaptureProperty.FrameWidth, 2048)
-                                _cap.Set(CaptureProperty.FrameHeight, 1536)
+                                _cap.Set(VideoCaptureProperties.FrameWidth, 2048)
+                                _cap.Set(VideoCaptureProperties.FrameHeight, 1536)
                             End If
 
                             'CapuretPropery
                             Console.WriteLine("Camera ID    :{0}", camId)
-                            Console.WriteLine(" Width       :{0}", _cap.Get(CaptureProperty.FrameWidth))
-                            Console.WriteLine(" Height      :{0}", _cap.Get(CaptureProperty.FrameHeight))
-                            Console.WriteLine(" Exposure    :{0}", _cap.Get(CaptureProperty.Exposure))
-                            Console.WriteLine(" AutoExposure:{0}", _cap.Get(CaptureProperty.AutoExposure))
-                            Console.WriteLine(" Exposure    :{0}", _cap.Get(CaptureProperty.Exposure))
-                            Console.WriteLine(" FPS         :{0}", _cap.Get(CaptureProperty.Fps))
-                            Console.WriteLine(" FrameCount  :{0}", _cap.Get(CaptureProperty.FrameCount))
-                            Console.WriteLine(" Gamma       :{0}", _cap.Get(CaptureProperty.Gamma))
-                            Console.WriteLine(" Gain        :{0}", _cap.Get(CaptureProperty.Gain))
-                            Console.WriteLine(" Temperature :{0}", _cap.Get(CaptureProperty.Temperature))
-                            Console.WriteLine(" XI_AutoWB   :{0}", _cap.Get(CaptureProperty.XI_AutoWB))
+                            Console.WriteLine(" Width       :{0}", _cap.Get(VideoCaptureProperties.FrameWidth))
+                            Console.WriteLine(" Height      :{0}", _cap.Get(VideoCaptureProperties.FrameHeight))
+                            Console.WriteLine(" Exposure    :{0}", _cap.Get(VideoCaptureProperties.Exposure))
+                            Console.WriteLine(" AutoExposure:{0}", _cap.Get(VideoCaptureProperties.AutoExposure))
+                            Console.WriteLine(" Exposure    :{0}", _cap.Get(VideoCaptureProperties.Exposure))
+                            Console.WriteLine(" FPS         :{0}", _cap.Get(VideoCaptureProperties.Fps))
+                            Console.WriteLine(" FrameCount  :{0}", _cap.Get(VideoCaptureProperties.FrameCount))
+                            Console.WriteLine(" Gamma       :{0}", _cap.Get(VideoCaptureProperties.Gamma))
+                            Console.WriteLine(" Gain        :{0}", _cap.Get(VideoCaptureProperties.Gain))
+                            Console.WriteLine(" Temperature :{0}", _cap.Get(VideoCaptureProperties.Temperature))
+                            Console.WriteLine(" XI_AutoWB   :{0}", _cap.Get(VideoCaptureProperties.XI_AutoWB))
 
                             Me._zoomRatio = _cap.FrameWidth / Me.pbxMainRaw.Width
                             Me._rawWidth = _cap.FrameWidth
@@ -189,7 +189,7 @@ Public Class MainWindow
                       )
 
             'check
-            If Me._cap.Get(CaptureProperty.FrameWidth) <= 0 Then
+            If Me._cap.Get(VideoCaptureProperties.FrameWidth) <= 0 Then
                 '使用できないカメラ
                 Me._cap.Release()
                 Me._cap = Nothing
@@ -215,7 +215,6 @@ Public Class MainWindow
             Try
                 'create VideoCapture instance
                 If Me.InitCam() = False Then
-                    Threading.Thread.Sleep(100)
                     MessageBox.Show("Erro:init cam")
                     Return
                 End If
@@ -223,6 +222,7 @@ Public Class MainWindow
                 'capture
                 Using mat = New Mat()
                     If Me._cap.Read(mat) = False Then
+                        Threading.Thread.Sleep(10)
                         Continue While
                     End If
 
@@ -246,7 +246,7 @@ Public Class MainWindow
                     Me.Invoke(
                         Sub()
                             'update edit
-                            Me.pbxMainRaw.ImageIpl = clipEditMat
+                            Me.pbxMainRaw.Image = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(clipEditMat)
 
                             'update clip
                             If Me._isColor = False Then
@@ -254,18 +254,19 @@ Public Class MainWindow
                                 Dim dst = New Mat()
                                 Cv2.CvtColor(Me._rawClipMat, dst, ColorConversionCodes.BGRA2GRAY)
                                 Cv2.CvtColor(dst, Me._rawClipMat, ColorConversionCodes.GRAY2BGR)
-                                Me.pbxProcessed.ImageIpl = dst
+                                Me.pbxProcessed.Image = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(dst)
                             Else
-                                Me.pbxProcessed.ImageIpl = Me._rawClipMat
+                                Me.pbxProcessed.Image = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(Me._rawClipMat)
                             End If
 
                             'adjust
-                            If Me.pbxProcessed.ImageIpl.Height > Me.pbxProcessed.Height Then
-                                Dim ratio = Me.pbxProcessed.Height / Me.pbxProcessed.ImageIpl.Height
-                                Dim w = CInt(Me.pbxProcessed.ImageIpl.Height * ratio - 0.5)
+                            If Me.pbxProcessed.Image.Height > Me.pbxProcessed.Height Then
+                                Dim ratio = Me.pbxProcessed.Height / Me.pbxProcessed.Image.Height
+                                Dim w = CInt(Me.pbxProcessed.Image.Height * ratio - 0.5)
                                 Using tempMat As New Mat()
-                                    Cv2.Resize(Me.pbxProcessed.ImageIpl, tempMat, New OpenCvSharp.Size(w, w), interpolation:=InterpolationFlags.Cubic)
-                                    Me.pbxProcessed.ImageIpl = tempMat
+                                    Dim pbxProcessedMat = OpenCvSharp.Extensions.BitmapConverter.ToMat(Me.pbxProcessed.Image)
+                                    Cv2.Resize(pbxProcessedMat, tempMat, New OpenCvSharp.Size(w, w), interpolation:=InterpolationFlags.Linear)
+                                    Me.pbxProcessed.Image = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(tempMat)
                                 End Using
                             End If
 
@@ -481,7 +482,7 @@ Public Class MainWindow
         '            Continue For
         '        Else
         '            Console.WriteLine("CAMERA ID:{0}", i)
-        '            Console.WriteLine(" {0} {1}", temp.Get(CaptureProperty.FrameHeight), temp.Get(CaptureProperty.FrameWidth))
+        '            Console.WriteLine(" {0} {1}", temp.Get(VideoCaptureProperties.FrameHeight), temp.Get(VideoCaptureProperties.FrameWidth))
         '            camIds.Add(i)
         '        End If
         '    Finally

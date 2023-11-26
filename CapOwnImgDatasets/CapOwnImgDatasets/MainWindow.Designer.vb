@@ -23,9 +23,9 @@ Partial Class MainWindow
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.cmbCamID = New System.Windows.Forms.ComboBox()
-        Me.pbxMainRaw = New OpenCvSharp.UserInterface.PictureBoxIpl()
+        Me.pbxMainRaw = New PictureBox()
         Me.btnCamOpen = New System.Windows.Forms.Button()
-        Me.pbxProcessed = New OpenCvSharp.UserInterface.PictureBoxIpl()
+        Me.pbxProcessed = New PictureBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
@@ -757,9 +757,9 @@ Partial Class MainWindow
     End Sub
 
     Friend WithEvents cmbCamID As ComboBox
-    Friend WithEvents pbxMainRaw As OpenCvSharp.UserInterface.PictureBoxIpl
+    Friend WithEvents pbxMainRaw As PictureBox
     Friend WithEvents btnCamOpen As Button
-    Friend WithEvents pbxProcessed As OpenCvSharp.UserInterface.PictureBoxIpl
+    Friend WithEvents pbxProcessed As PictureBox
     Friend WithEvents Label1 As Label
     Friend WithEvents GroupBox2 As GroupBox
     Friend WithEvents GroupBox3 As GroupBox
