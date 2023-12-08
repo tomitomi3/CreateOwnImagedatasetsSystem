@@ -494,6 +494,8 @@ Partial Class MainWindow
         'cbxAutoExposure
         '
         Me.cbxAutoExposure.AutoSize = True
+        Me.cbxAutoExposure.Checked = True
+        Me.cbxAutoExposure.CheckState = System.Windows.Forms.CheckState.Checked
         Me.cbxAutoExposure.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
         Me.cbxAutoExposure.Location = New System.Drawing.Point(97, 40)
         Me.cbxAutoExposure.Name = "cbxAutoExposure"
@@ -505,6 +507,8 @@ Partial Class MainWindow
         'cbxAutoWB
         '
         Me.cbxAutoWB.AutoSize = True
+        Me.cbxAutoWB.Checked = True
+        Me.cbxAutoWB.CheckState = System.Windows.Forms.CheckState.Checked
         Me.cbxAutoWB.Location = New System.Drawing.Point(13, 40)
         Me.cbxAutoWB.Name = "cbxAutoWB"
         Me.cbxAutoWB.Size = New System.Drawing.Size(65, 16)
